@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ucm-color-admin"
+version = "0.2.0"
+description = "Packaged backend management service for UCM Color"
+readme = "README.md"
+authors = [
+  {name = "Zizhao YUAN", email = "pinbei22@gmail.com"},
+  {name = "UCM Color Maintainers", email = "support@example.com"}
+]
+license = {file = "LICENSE"}
+requires-python = ">=3.9"
+keywords = ["fastapi", "backend", "admin", "installer"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Framework :: FastAPI"
+]
+dependencies = [
+  "fastapi>=0.110,<1",
+  "uvicorn[standard]>=0.23,<1",
+  "SQLAlchemy>=2.0,<3",
+  "pydantic>=2.4,<3",
+  "typer>=0.9,<1"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7",
+  "httpx>=0.25",
+  "build>=1.0",
+  "ruff>=0.3"
+]
+
+[project.urls]
+Homepage = "https://example.com/ucm-color"
+Documentation = "https://example.com/ucm-color/docs"
+
+[project.scripts]
+ucm-color-admin = "ucm_color_admin.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"ucm_color_admin" = ["py.typed"]
