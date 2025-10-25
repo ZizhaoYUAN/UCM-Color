@@ -455,3 +455,80 @@ services:
 ## 16. 支付模块
 - 预留支付接口，支持国内主流支付平台对接（如财富通）。
 - 后台支持查询支付记录，提供日/月度支付数据统计。
+
+---
+
+## 17. 后台系统代码实现与本机部署
+为了便于团队快速验证业务流程，本仓库提供了基于 **FastAPI + SQLModel + PostgreSQL** 的最小可运行后台服务，覆盖商品、库存、会员、订单、促销等核心模块。源码位于 `backend/app`，主要结构如下：
+
+```
+backend/
+  app/
+    api/            # 各模块的 REST 路由
+    core/           # 配置读取
+    db/             # 数据库会话与初始化
+    models/         # SQLModel 定义的领域模型
+    schemas/        # Pydantic 请求/响应模型
+    main.py         # FastAPI 入口
+  tests/            # Pytest 端到端用例
+```
+
+### 17.1 本机运行（Python 虚拟环境）
+1. 准备 Python 3.11 环境并安装依赖：
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements-dev.txt
+   ```
+2. 启动 PostgreSQL（可使用 docker-compose 或本地实例），并设置数据库连接：
+   ```bash
+   export DB__CONN=postgresql+psycopg2://retail:retail@localhost:5432/retail
+   ```
+3. 运行 API：
+   ```bash
+   uvicorn app.main:app --reload --app-dir backend
+   ```
+4. 访问 `http://localhost:8000/api/v1/health` 验证服务是否正常。
+
+### 17.2 Docker Compose 一体化启动
+仓库提供 `docker-compose.yml`，包含 PostgreSQL 与后台 API：
+```bash
+docker compose up --build
+```
+启动完成后，API 暴露在 `http://localhost:8080/api/v1`，默认数据库账号为 `retail/retail`。
+
+### 17.3 自动化测试
+端到端测试覆盖了门店、商品、库存、会员、订单、促销的主流程：
+```bash
+pytest backend/tests
+```
+测试使用 SQLite 临时数据库，不依赖外部服务。
+
+### 17.4 API 示例
+以下调用演示商品建档、入库、下单与库存扣减：
+```bash
+# 创建门店
+curl -X POST http://localhost:8080/api/v1/stores \
+  -H "Content-Type: application/json" \
+  -d '{"store_id":"S001","name":"Main Store"}'
+
+# 上新 SKU（含条码与门店价格）
+curl -X POST http://localhost:8080/api/v1/catalog/skus \
+  -H "Content-Type: application/json" \
+  -d '{"sku_id":"SKU001","name":"Water","barcodes":[{"code":"6900000000017"}],"prices":[{"store_id":"S001","price":3.5}]}'
+
+# 入库 100 件
+curl -X POST http://localhost:8080/api/v1/inventory/moves \
+  -H "Content-Type: application/json" \
+  -d '{"store_id":"S001","sku_id":"SKU001","qty_delta":100,"reason":"purchase"}'
+
+# 创建订单并扣减库存
+curl -X POST http://localhost:8080/api/v1/orders \
+  -H "Content-Type: application/json" \
+  -d '{"order_id":"O001","store_id":"S001","status":"PAID","total":7.0,"items":[{"sku_id":"SKU001","qty":2,"price":3.5,"tax_rate":0.13}]}'
+```
+
+### 17.5 后续扩展建议
+- 将认证、RBAC、RLS 等高级能力集成至 API 层，并与 PostgreSQL 行级安全策略联动。
+- 使用 Kafka 推送 `SKU_UPDATED`、`STOCK_MOVED`、`ORDER_PAID` 等事件，供 ClickHouse 报表同步。
+- 增加 OpenSearch、Redis 等组件，实现全文检索与热点缓存。

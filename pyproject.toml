@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "retail-admin-api"
+version = "0.1.0"
+description = "Backend admin API for chain retail management"
+authors = [{name = "UCM Color"}]
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.23",
+  "sqlmodel>=0.0.14",
+  "psycopg2-binary>=2.9",
+  "pydantic>=1.10,<2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.4",
+  "httpx>=0.24",
+]
