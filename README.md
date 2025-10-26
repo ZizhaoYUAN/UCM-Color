@@ -68,6 +68,22 @@ The resulting files are placed under `dist/installers/`. Each archive
 contains the wheel and platform-specific installer script. End users
 can unpack the archive and run the installer script directly.
 
+## Exporting a full project archive
+
+To share the entire repository tree—for example when transferring it to
+another machine—compress the workspace directory into a zip file and
+copy it to a shareable location:
+
+```bash
+cd /workspace
+zip -r UCM-Color.zip UCM-Color
+cp UCM-Color.zip /mnt/data/UCM-Color.zip
+```
+
+The `/mnt/data` directory is exposed to the host environment in Codex
+workspaces, so any files placed there can be downloaded via the
+interface.
+
 ## Publishing direct download links
 
 1. Copy the generated archives from `dist/installers/` into the
