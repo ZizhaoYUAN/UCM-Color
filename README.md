@@ -43,6 +43,10 @@ ucm-color-admin run --reload
 
 Access the interactive API docs at <http://127.0.0.1:8000/docs>.
 
+> **Windows note:** On Windows 10, create the virtual environment with
+> `py -3 -m venv .venv` and activate it via
+> `.venv\Scripts\Activate.ps1`.
+
 ## Database management
 
 The service stores data in a SQLite database located at
@@ -63,6 +67,16 @@ archives:
 ```
 bash scripts/build_installer.sh
 ```
+
+On Windows PowerShell (including Windows 10 Home), use the dedicated
+script instead:
+
+```
+powershell -ExecutionPolicy Bypass -File scripts/build_installer.ps1
+```
+
+Pass `-PythonCommand py` or `-PythonCommand python` if a specific
+interpreter should be used.
 
 The resulting files are placed under `dist/installers/`. Each archive
 contains the wheel and platform-specific installer script. End users
@@ -129,8 +143,8 @@ need to push fresh builds to GitHub automatically.
 ### Linux/macOS installation
 
 ```
-tar -xzf ucm-color-admin-0.1.0-linux-macos.tar.gz
-cd ucm-color-admin-0.1.0
+tar -xzf ucm-color-admin-0.2.0-linux-macos.tar.gz
+cd ucm-color-admin-0.2.0
 chmod +x install.sh
 ./install.sh /opt/ucm-color-admin
 ```
@@ -141,8 +155,8 @@ script `ucm-color-admin.sh` inside the installation directory.
 ### Windows installation
 
 ```
-Expand-Archive ucm-color-admin-0.1.0-windows.zip
-cd ucm-color-admin-0.1.0
+Expand-Archive ucm-color-admin-0.2.0-windows.zip
+cd ucm-color-admin-0.2.0
 powershell -ExecutionPolicy Bypass -File install.ps1 -InstallDir "C:\\UCMColorAdmin"
 ```
 
@@ -152,6 +166,9 @@ After installation run:
 powershell -File C:\\UCMColorAdmin\\ucm-color-admin.ps1 run
 ```
 
+The default data location on Windows is
+`%LOCALAPPDATA%\UCMColorAdmin`, matching the installer defaults.
+
 ## Configuration
 
 Environment variables allow overriding defaults when running the
@@ -160,9 +177,49 @@ service or CLI:
 - `UCM_COLOR_HOST` – host to bind (default `127.0.0.1`).
 - `UCM_COLOR_PORT` – port to use (default `8000`).
 - `UCM_COLOR_RELOAD` – set to `true` to enable auto reload.
-- `UCM_COLOR_DB` – absolute path to the SQLite database file.
+- `UCM_COLOR_DB` – absolute path to the SQLite database file. Defaults
+  to `%LOCALAPPDATA%\UCMColorAdmin\database.sqlite3` on Windows and
+  `~/.ucm_color_admin/database.sqlite3` elsewhere.
 - `UCM_COLOR_INSTALLER_DIR` – directory that the `/downloads`
-  endpoints expose (default `~/.ucm_color_admin/installers`).
+  endpoints expose (default `%LOCALAPPDATA%\UCMColorAdmin\installers`
+  on Windows and `~/.ucm_color_admin/installers` on Linux/macOS).
+
+## Windows 10 Home + Docker Desktop testing workflow
+
+Windows 10 Home users with Docker Desktop 4.46.0 can run the backend in
+an isolated container for local verification:
+
+1. Ensure WSL 2 integration is enabled in Docker Desktop.
+2. From PowerShell, build the image (requires internet access to fetch
+   Python packages):
+
+   ```powershell
+   docker build -t ucm-color-admin:latest .
+   ```
+
+3. Launch the container, binding the API port and mounting a host
+   directory so installers and the SQLite database persist between
+   runs:
+
+   ```powershell
+   docker run --rm -p 8000:8000 `
+     -v "$Env:LOCALAPPDATA\UCMColorAdmin:/data" `
+     -e UCM_COLOR_DB=/data/database.sqlite3 `
+     -e UCM_COLOR_INSTALLER_DIR=/data/installers `
+     ucm-color-admin:latest
+   ```
+
+4. Once the container reports that Uvicorn started, open
+   <http://127.0.0.1:8000/docs> in the browser to interact with the API
+   or invoke CLI commands via:
+
+   ```powershell
+   docker exec -it <container-id> ucm-color-admin list-users
+   ```
+
+This workflow mirrors the packaged defaults, ensuring that archives
+downloaded from `/downloads` behave the same way as an on-host
+installation.
 
 ## License
 
