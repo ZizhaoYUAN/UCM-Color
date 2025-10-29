@@ -155,6 +155,7 @@ def download_installers(
 
     output = output.expanduser()
     output.mkdir(parents=True, exist_ok=True)
+    output_root = output.resolve()
 
     index_url = source.rstrip("/")
     if not index_url.endswith("/downloads"):
@@ -199,7 +200,24 @@ def download_installers(
         return
 
     for filename, file_url in entries:
-        destination = output / filename
+        safe_name = Path(filename).name
+        if safe_name in {"", ".", ".."}:
+            typer.secho(
+                f"Skipping suspicious filename {filename!r} advertised by the server.",
+                fg=typer.colors.YELLOW,
+            )
+            continue
+
+        destination = (output_root / safe_name).resolve()
+        try:
+            destination.relative_to(output_root)
+        except ValueError:
+            typer.secho(
+                f"Skipping unsafe destination {destination} derived from {filename!r}.",
+                fg=typer.colors.YELLOW,
+            )
+            continue
+
         if destination.exists() and not overwrite:
             typer.secho(
                 f"{destination} already exists; skipping. Use --overwrite to replace.",
