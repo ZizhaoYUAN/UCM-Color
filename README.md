@@ -221,6 +221,31 @@ This workflow mirrors the packaged defaults, ensuring that archives
 downloaded from `/downloads` behave the same way as an on-host
 installation.
 
+## Exporting the entire project as a ZIP archive
+
+When you need to share the full repository contents—for example to attach
+them to a support ticket or provide Codex with a reproducible snapshot—run
+the bundled export helper. The script skips transient directories such as
+`.git`, build artefacts, and caches so the resulting archive stays lean.
+
+```bash
+python scripts/export_project.py --output dist/UCM-Color.zip
+```
+
+The command writes the archive to `dist/UCM-Color.zip` by default. You can
+specify a custom path with `--output` or include the Git metadata with
+`--include-git` if you need the commit history.
+
+To make the archive available for download in this coding environment,
+copy it into `/mnt/data` after exporting:
+
+```bash
+cp dist/UCM-Color.zip /mnt/data/UCM-Color.zip
+```
+
+The `/mnt/data` directory is exposed via the “Download file” UI so you can
+transfer the archive to your Windows workstation for local testing.
+
 ## License
 
 This project is released under the MIT License. See [LICENSE](LICENSE)
