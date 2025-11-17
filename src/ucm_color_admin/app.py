@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Generator
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import FileResponse
@@ -11,17 +10,9 @@ from sqlalchemy.orm import Session
 
 from . import __version__, crud, schemas
 from .config import get_settings
-from .database import SessionLocal, init_database
-
-
-def get_db() -> Generator[Session, None, None]:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
+from .database import init_database
+from .dependencies import get_db
+from .web import router as web_router
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
 
@@ -101,5 +92,7 @@ def create_app() -> FastAPI:
         if not requested.is_file():
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Installer not found")
         return FileResponse(requested)
+
+    app.include_router(web_router)
 
     return app

@@ -15,6 +15,8 @@ run the API without needing to manually provision dependencies.
   share archives.
 - Built-in `/downloads` API that lists installers and serves them
   directly to end users.
+- Integrated `/web/login` portal that provides browser-based login and
+  user management forms without needing an external front-end.
 
 ## Project layout
 
@@ -46,6 +48,22 @@ Access the interactive API docs at <http://127.0.0.1:8000/docs>.
 > **Windows note:** On Windows 10, create the virtual environment with
 > `py -3 -m venv .venv` and activate it via
 > `.venv\Scripts\Activate.ps1`.
+
+## Web 登录与表单中心
+
+Create your first administrator with the CLI and then manage users in a
+browser without writing additional code:
+
+1. Run `ucm-color-admin create-admin <username> --password <pwd>`.
+2. Start the API via `ucm-color-admin run` (or the installed service).
+3. Open <http://127.0.0.1:8000/web/login> to access the login portal.
+4. After authenticating, the `/web/forms` page lists current users and
+   provides HTML forms to create, update, or delete entries.
+
+The session is stored in an HTTP-only cookie for eight hours. Use the
+“退出” button in the UI (or visit `/web/logout`) to clear it. These
+pages share the same SQLite database as the API, so actions performed in
+the browser are immediately reflected in API responses and vice versa.
 
 ## Database management
 
@@ -132,7 +150,7 @@ environment variable or through the `--token` option.
 
 ```
 export GITHUB_TOKEN=ghp_example123
-ucm-color-admin publish-installers example/ucm-color --tag v0.2.0 --notes "Automated download helpers"
+ucm-color-admin publish-installers example/ucm-color --tag v0.3.0 --notes "Web login portal"
 ```
 
 The command creates (or updates) the release, uploads the
@@ -143,8 +161,8 @@ need to push fresh builds to GitHub automatically.
 ### Linux/macOS installation
 
 ```
-tar -xzf ucm-color-admin-0.2.0-linux-macos.tar.gz
-cd ucm-color-admin-0.2.0
+tar -xzf ucm-color-admin-0.3.0-linux-macos.tar.gz
+cd ucm-color-admin-0.3.0
 chmod +x install.sh
 ./install.sh /opt/ucm-color-admin
 ```
@@ -155,8 +173,8 @@ script `ucm-color-admin.sh` inside the installation directory.
 ### Windows installation
 
 ```
-Expand-Archive ucm-color-admin-0.2.0-windows.zip
-cd ucm-color-admin-0.2.0
+Expand-Archive ucm-color-admin-0.3.0-windows.zip
+cd ucm-color-admin-0.3.0
 powershell -ExecutionPolicy Bypass -File install.ps1 -InstallDir "C:\\UCMColorAdmin"
 ```
 
