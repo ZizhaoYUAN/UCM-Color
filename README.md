@@ -15,6 +15,8 @@ run the API without needing to manually provision dependencies.
   share archives.
 - Built-in `/downloads` API that lists installers and serves them
   directly to end users.
+- Integrated `/web/login` portal that provides browser-based login and
+  user management forms without needing an external front-end.
 
 ## Project layout
 
@@ -43,6 +45,26 @@ ucm-color-admin run --reload
 
 Access the interactive API docs at <http://127.0.0.1:8000/docs>.
 
+> **Windows note:** On Windows 10, create the virtual environment with
+> `py -3 -m venv .venv` and activate it via
+> `.venv\Scripts\Activate.ps1`.
+
+## Web 登录与表单中心
+
+Create your first administrator with the CLI and then manage users in a
+browser without writing additional code:
+
+1. Run `ucm-color-admin create-admin <username> --password <pwd>`.
+2. Start the API via `ucm-color-admin run` (or the installed service).
+3. Open <http://127.0.0.1:8000/web/login> to access the login portal.
+4. After authenticating, the `/web/forms` page lists current users and
+   provides HTML forms to create, update, or delete entries.
+
+The session is stored in an HTTP-only cookie for eight hours. Use the
+“退出” button in the UI (or visit `/web/logout`) to clear it. These
+pages share the same SQLite database as the API, so actions performed in
+the browser are immediately reflected in API responses and vice versa.
+
 ## Database management
 
 The service stores data in a SQLite database located at
@@ -64,9 +86,35 @@ archives:
 bash scripts/build_installer.sh
 ```
 
+On Windows PowerShell (including Windows 10 Home), use the dedicated
+script instead:
+
+```
+powershell -ExecutionPolicy Bypass -File scripts/build_installer.ps1
+```
+
+Pass `-PythonCommand py` or `-PythonCommand python` if a specific
+interpreter should be used.
+
 The resulting files are placed under `dist/installers/`. Each archive
 contains the wheel and platform-specific installer script. End users
 can unpack the archive and run the installer script directly.
+
+## Exporting a full project archive
+
+To share the entire repository tree—for example when transferring it to
+another machine—compress the workspace directory into a zip file and
+copy it to a shareable location:
+
+```bash
+cd /workspace
+zip -r UCM-Color.zip UCM-Color
+cp UCM-Color.zip /mnt/data/UCM-Color.zip
+```
+
+The `/mnt/data` directory is exposed to the host environment in Codex
+workspaces, so any files placed there can be downloaded via the
+interface.
 
 ## Publishing direct download links
 
@@ -102,7 +150,7 @@ environment variable or through the `--token` option.
 
 ```
 export GITHUB_TOKEN=ghp_example123
-ucm-color-admin publish-installers example/ucm-color --tag v0.2.0 --notes "Automated download helpers"
+ucm-color-admin publish-installers example/ucm-color --tag v0.3.0 --notes "Web login portal"
 ```
 
 The command creates (or updates) the release, uploads the
@@ -113,8 +161,8 @@ need to push fresh builds to GitHub automatically.
 ### Linux/macOS installation
 
 ```
-tar -xzf ucm-color-admin-0.1.0-linux-macos.tar.gz
-cd ucm-color-admin-0.1.0
+tar -xzf ucm-color-admin-0.3.0-linux-macos.tar.gz
+cd ucm-color-admin-0.3.0
 chmod +x install.sh
 ./install.sh /opt/ucm-color-admin
 ```
@@ -125,8 +173,8 @@ script `ucm-color-admin.sh` inside the installation directory.
 ### Windows installation
 
 ```
-Expand-Archive ucm-color-admin-0.1.0-windows.zip
-cd ucm-color-admin-0.1.0
+Expand-Archive ucm-color-admin-0.3.0-windows.zip
+cd ucm-color-admin-0.3.0
 powershell -ExecutionPolicy Bypass -File install.ps1 -InstallDir "C:\\UCMColorAdmin"
 ```
 
@@ -136,6 +184,9 @@ After installation run:
 powershell -File C:\\UCMColorAdmin\\ucm-color-admin.ps1 run
 ```
 
+The default data location on Windows is
+`%LOCALAPPDATA%\UCMColorAdmin`, matching the installer defaults.
+
 ## Configuration
 
 Environment variables allow overriding defaults when running the
@@ -144,9 +195,74 @@ service or CLI:
 - `UCM_COLOR_HOST` – host to bind (default `127.0.0.1`).
 - `UCM_COLOR_PORT` – port to use (default `8000`).
 - `UCM_COLOR_RELOAD` – set to `true` to enable auto reload.
-- `UCM_COLOR_DB` – absolute path to the SQLite database file.
+- `UCM_COLOR_DB` – absolute path to the SQLite database file. Defaults
+  to `%LOCALAPPDATA%\UCMColorAdmin\database.sqlite3` on Windows and
+  `~/.ucm_color_admin/database.sqlite3` elsewhere.
 - `UCM_COLOR_INSTALLER_DIR` – directory that the `/downloads`
-  endpoints expose (default `~/.ucm_color_admin/installers`).
+  endpoints expose (default `%LOCALAPPDATA%\UCMColorAdmin\installers`
+  on Windows and `~/.ucm_color_admin/installers` on Linux/macOS).
+
+## Windows 10 Home + Docker Desktop testing workflow
+
+Windows 10 Home users with Docker Desktop 4.46.0 can run the backend in
+an isolated container for local verification:
+
+1. Ensure WSL 2 integration is enabled in Docker Desktop.
+2. From PowerShell, build the image (requires internet access to fetch
+   Python packages):
+
+   ```powershell
+   docker build -t ucm-color-admin:latest .
+   ```
+
+3. Launch the container, binding the API port and mounting a host
+   directory so installers and the SQLite database persist between
+   runs:
+
+   ```powershell
+   docker run --rm -p 8000:8000 `
+     -v "$Env:LOCALAPPDATA\UCMColorAdmin:/data" `
+     -e UCM_COLOR_DB=/data/database.sqlite3 `
+     -e UCM_COLOR_INSTALLER_DIR=/data/installers `
+     ucm-color-admin:latest
+   ```
+
+4. Once the container reports that Uvicorn started, open
+   <http://127.0.0.1:8000/docs> in the browser to interact with the API
+   or invoke CLI commands via:
+
+   ```powershell
+   docker exec -it <container-id> ucm-color-admin list-users
+   ```
+
+This workflow mirrors the packaged defaults, ensuring that archives
+downloaded from `/downloads` behave the same way as an on-host
+installation.
+
+## Exporting the entire project as a ZIP archive
+
+When you need to share the full repository contents—for example to attach
+them to a support ticket or provide Codex with a reproducible snapshot—run
+the bundled export helper. The script skips transient directories such as
+`.git`, build artefacts, and caches so the resulting archive stays lean.
+
+```bash
+python scripts/export_project.py --output dist/UCM-Color.zip
+```
+
+The command writes the archive to `dist/UCM-Color.zip` by default. You can
+specify a custom path with `--output` or include the Git metadata with
+`--include-git` if you need the commit history.
+
+To make the archive available for download in this coding environment,
+copy it into `/mnt/data` after exporting:
+
+```bash
+cp dist/UCM-Color.zip /mnt/data/UCM-Color.zip
+```
+
+The `/mnt/data` directory is exposed via the “Download file” UI so you can
+transfer the archive to your Windows workstation for local testing.
 
 ## License
 

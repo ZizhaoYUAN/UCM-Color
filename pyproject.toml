@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ucm-color-admin"
-version = "0.2.0"
+version = "0.3.0"
 description = "Packaged backend management service for UCM Color"
 readme = "README.md"
 authors = [
@@ -25,7 +25,8 @@ dependencies = [
   "uvicorn[standard]>=0.23,<1",
   "SQLAlchemy>=2.0,<3",
   "pydantic>=2.4,<3",
-  "typer>=0.9,<1"
+  "typer>=0.9,<1",
+  "Jinja2>=3.1,<4"
 ]
 
 [project.optional-dependencies]
@@ -47,4 +48,4 @@ ucm-color-admin = "ucm_color_admin.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"ucm_color_admin" = ["py.typed"]
+"ucm_color_admin" = ["py.typed", "templates/*.html", "templates/**/*.html"]

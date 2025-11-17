@@ -68,3 +68,14 @@ def update_user(db: Session, user: models.User, payload: schemas.UserUpdate) -> 
 def delete_user(db: Session, user: models.User) -> None:
     db.delete(user)
     db.commit()
+
+
+def authenticate_user(db: Session, username: str, password: str) -> Optional[models.User]:
+    """Return the matching user when the credentials are valid."""
+
+    user = get_user_by_username(db, username)
+    if not user:
+        return None
+    if not security.verify_password(password, user.hashed_password):
+        return None
+    return user
