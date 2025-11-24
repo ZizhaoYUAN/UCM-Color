@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}UCM Color 管理后台{% endblock %}</title>
+    <style>
+      :root {
+        font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+        color: #1f2933;
+        background: #f5f6fa;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f5f6fa;
+      }
+      header {
+        background: linear-gradient(135deg, #1f7aed, #3bc7ff);
+        color: #fff;
+        padding: 1.5rem 2rem;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      }
+      main {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      a.button {
+        background: #fff;
+        color: #1f7aed;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(255, 255, 255, 0.5);
+      }
+      .card {
+        background: #fff;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      }
+      label {
+        display: block;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+        color: #4b5563;
+      }
+      input, select {
+        width: 100%;
+        padding: 0.6rem;
+        border-radius: 0.5rem;
+        border: 1px solid #d1d5db;
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+      }
+      button {
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: #1f7aed;
+        color: #fff;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th, td {
+        text-align: left;
+        padding: 0.75rem;
+        border-bottom: 1px solid #eef2f7;
+        font-size: 0.95rem;
+      }
+      th {
+        background: #f8fafc;
+        color: #334155;
+      }
+      .message {
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        color: #0f5132;
+        background: #d1e7dd;
+        border: 1px solid #badbcc;
+      }
+      .error {
+        color: #b91c1c;
+        background: #fee2e2;
+        border-color: #fecaca;
+      }
+      form.inline {
+        display: inline;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>{% block heading %}UCM Color 管理后台{% endblock %}</h1>
+      {% block header_actions %}{% endblock %}
+    </header>
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>
