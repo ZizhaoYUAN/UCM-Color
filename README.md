@@ -57,8 +57,17 @@ browser without writing additional code:
 1. Run `ucm-color-admin create-admin <username> --password <pwd>`.
 2. Start the API via `ucm-color-admin run` (or the installed service).
 3. Open <http://127.0.0.1:8000/web/login> to access the login portal.
-4. After authenticating, the `/web/forms` page lists current users and
-   provides HTML forms to create, update, or delete entries.
+4. 登录后自动跳转到 `/web/dashboard` 主控台：左侧树状菜单列出业务模块，右侧显示检查页头和检查列表，便于核对上线范围。
+5. 使用右上角的“用户表单”按钮进入 `/web/forms`，这里提供创建、更新、删除用户的 HTML 表单。
+
+主控台涵盖的业务检查模块：
+
+- 商品（Catalog）：条码、价格、批量导入导出、富媒体与查询编辑。
+- 库存（Inventory）：库存流水、盘点调整、低库存/滞销预警、ATS 与门店调拨。
+- 会员（CRM）：会员档案、积分规则、隐私合规导出、等级与优惠、清费记录。
+- 订单（OMS/Orders）：多维筛选、状态流转、退款/作废、渠道对账导出。
+- 营销与分析（Marketing & BI）：满减/折扣/券、看板报表、门店/区域多维透视。
+- 系统（System）：用户/角色/权限、API 密钥、审计日志与定时任务。
 
 The session is stored in an HTTP-only cookie for eight hours. Use the
 “退出” button in the UI (or visit `/web/logout`) to clear it. These
