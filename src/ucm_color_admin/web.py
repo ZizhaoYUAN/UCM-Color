@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 from urllib.parse import quote_plus
@@ -20,24 +21,34 @@ templates = Jinja2Templates(directory=str(_templates_dir))
 _SESSION_COOKIE = "ucm_color_admin_user"
 _SESSION_AGE = 60 * 60 * 8  # 8 hours
 
-_MODULES = [
-    {
-        "id": "catalog",
-        "title": "商品（Catalog）",
-        "summary": "条码、价格、富媒体与批量导入导出能力",
-        "items": [
+@dataclass(frozen=True)
+class Module:
+    """Descriptor for dashboard checklist sections."""
+
+    id: str
+    title: str
+    summary: str
+    checklist: list[str]
+
+
+_MODULES: list[Module] = [
+    Module(
+        id="catalog",
+        title="商品（Catalog）",
+        summary="条码、价格、富媒体与批量导入导出能力",
+        checklist=[
             "SKU/条码管理：多条码、包装规格、税率、产地、品牌、保质期属性",
             "价格管理：标准价/会员价/生鲜临时调价（含生效时间）",
             "批量导入/导出：CSV/Excel，导入前校验与预览差异",
             "图片与富媒体：上传到对象存储（本机 MinIO / 云上 OSS）",
             "商品查询和编辑",
         ],
-    },
-    {
-        "id": "inventory",
-        "title": "库存（Inventory）",
-        "summary": "库存流水、盘点、预警与门店调拨流程",
-        "items": [
+    ),
+    Module(
+        id="inventory",
+        title="库存（Inventory）",
+        summary="库存流水、盘点、预警与门店调拨流程",
+        checklist=[
             "库存流水 Ledger：入库/退货/报损/盘盈/调拨/销售扣减",
             "盘点：差异对账、生成调整单",
             "可卖量 ATS：在线计算 + 预聚合缓存",
@@ -45,50 +56,50 @@ _MODULES = [
             "库存查询列表，导出和导入",
             "门店商品库存调拔",
         ],
-    },
-    {
-        "id": "crm",
-        "title": "会员（CRM）",
-        "summary": "会员档案、积分与合规导出申请",
-        "items": [
+    ),
+    Module(
+        id="crm",
+        title="会员（CRM）",
+        summary="会员档案、积分与合规导出申请",
+        checklist=[
             "会员档案：手机号/标签/黑名单/合并（重复号码、无效记录）",
             "积分（可选）：获取/消费规则",
             "隐私合规：脱敏展示、导出申请",
             "会员的等级设和优惠设置",
             "会员清费历史记录",
         ],
-    },
-    {
-        "id": "orders",
-        "title": "订单（OMS/Orders）",
-        "summary": "订单状态流、售后与对账",
-        "items": [
+    ),
+    Module(
+        id="orders",
+        title="订单（OMS/Orders）",
+        summary="订单状态流、售后与对账",
+        checklist=[
             "查询/筛选：按时间/店/渠道/状态/会员/金额",
             "状态流：CREATED → PAID → READY → HANDED_OVER/DELIVERED → CLOSED",
             "售后：退款/作废（权限控制、双人复核可选）",
             "对账：按渠道/支付方式汇总导出",
         ],
-    },
-    {
-        "id": "marketing",
-        "title": "营销与分析（Marketing & BI）",
-        "summary": "活动规则与多维报表看板",
-        "items": [
+    ),
+    Module(
+        id="marketing",
+        title="营销与分析（Marketing & BI）",
+        summary="活动规则与多维报表看板",
+        checklist=[
             "活动规则（最小集）：满减/折扣/券（可按门店/类目/会员等级）",
             "报表与看板：销售额、客单价、UPT、毛利（估）、TOPN 商品/时段热力",
             "门店/区域多维透视：store_id 分区 + 物化视图刷新（分钟级）",
         ],
-    },
-    {
-        "id": "system",
-        "title": "系统（System）",
-        "summary": "用户权限、任务与审计日志",
-        "items": [
+    ),
+    Module(
+        id="system",
+        title="系统（System）",
+        summary="用户权限、任务与审计日志",
+        checklist=[
             "用户/角色/权限、API 密钥、审计日志（谁在何时做了什么）",
             "任务：导入任务、批处理、定时刷新",
             "用户登录和验证",
         ],
-    },
+    ),
 ]
 
 
@@ -163,10 +174,10 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     user = _current_user(request, db)
     if not user:
         return RedirectResponse(url="/web/login?error=login_required", status_code=status.HTTP_303_SEE_OTHER)
-    active_module = request.query_params.get("module") or _MODULES[0]["id"]
-    module_ids = {module["id"] for module in _MODULES}
+    active_module = request.query_params.get("module") or _MODULES[0].id
+    module_ids = {module.id for module in _MODULES}
     if active_module not in module_ids:
-        active_module = _MODULES[0]["id"]
+        active_module = _MODULES[0].id
     return templates.TemplateResponse(
         "dashboard.html",
         {
