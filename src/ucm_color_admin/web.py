@@ -22,6 +22,12 @@ _SESSION_COOKIE = "ucm_color_admin_user"
 _SESSION_AGE = 60 * 60 * 8  # 8 hours
 
 @dataclass(frozen=True)
+class MenuItem:
+    label: str
+    children: tuple["MenuItem", ...] = ()
+
+
+@dataclass(frozen=True)
 class Module:
     """Descriptor for dashboard checklist sections."""
 
@@ -29,6 +35,7 @@ class Module:
     title: str
     summary: str
     checklist: list[str]
+    menu: tuple[MenuItem, ...] = ()
 
 
 _MODULES: list[Module] = [
@@ -37,12 +44,14 @@ _MODULES: list[Module] = [
         title="商品（Catalog）",
         summary="条码、价格、富媒体与批量导入导出能力",
         checklist=[
-            "SKU/条码管理：多条码、包装规格、税率、产地、品牌、保质期属性",
-            "价格管理：标准价/会员价/生鲜临时调价（含生效时间）",
-            "批量导入/导出：CSV/Excel，导入前校验与预览差异",
-            "图片与富媒体：上传到对象存储（本机 MinIO / 云上 OSS）",
-            "商品查询和编辑",
+            "商品列表字段：SKU、商品条码（支持多条码输入）、分类、包装规格、单位",
+            "价格管理：销售价/会员价/生鲜临时调价，均含生效时间",
+            "税率、品牌、产地、保质期属性可维护且可查询",
+            "图片与富媒体：商品图片最多 5 张、商品视频可上传到对象存储",
+            "批量导入/导出：CSV/Excel，导入前校验并支持差异预览",
+            "商品列表含查询、导入、导出、编辑与新增商品按钮",
         ],
+        menu=(MenuItem(label="商品", children=(MenuItem(label="新增商品"),)),),
     ),
     Module(
         id="inventory",

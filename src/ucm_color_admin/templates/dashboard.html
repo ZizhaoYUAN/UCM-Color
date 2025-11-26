@@ -37,9 +37,7 @@
       padding: 0;
       margin: 0;
     }
-    .tree li {
-      margin-bottom: 0.5rem;
-    }
+    .tree li { margin-bottom: 0.5rem; }
     .tree button {
       width: 100%;
       text-align: left;
@@ -63,6 +61,20 @@
       color: #fff;
       border-color: transparent;
       box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+    }
+    .nav-tree { margin-top: 1rem; padding-left: 0.25rem; }
+    .nav-tree ul { list-style: none; padding-left: 0.75rem; margin: 0.35rem 0; }
+    .nav-node { color: #e2e8f0; font-weight: 600; margin: 0.25rem 0; }
+    .nav-node.level-2 { color: #cbd5e1; font-weight: 500; }
+    .nav-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.55rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.65rem;
+      font-size: 0.95rem;
     }
     .content-shell {
       background: #fff;
@@ -151,6 +163,23 @@
     }
   </style>
 
+  {% macro render_menu(items, level=1) %}
+    <ul>
+      {% for item in items %}
+        <li>
+          <div class="nav-node level-{{ level }}">
+            <span class="nav-chip">{{ item.label }}</span>
+          </div>
+          {% if item.children %}
+            {{ render_menu(item.children, level + 1) }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endmacro %}
+
+  {% set active = (modules | selectattr('id', 'equalto', active_module) | list | first) %}
+
   <div class="layout">
     <aside class="sidebar">
       <h3>功能模块</h3>
@@ -164,9 +193,16 @@
           </li>
         {% endfor %}
       </ul>
-      <div style="margin-top: 1rem; font-size: 0.9rem; color: #cbd5e1;">
-        登录成功后可通过左侧树状菜单快速浏览各业务域检查项。
-      </div>
+      {% if active and active.menu %}
+        <div class="nav-tree">
+          <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 0.35rem;">{{ active.title }}导航</div>
+          {{ render_menu(active.menu) }}
+        </div>
+      {% else %}
+        <div style="margin-top: 1rem; font-size: 0.9rem; color: #cbd5e1;">
+          登录成功后可通过左侧树状菜单快速浏览各业务域检查项。
+        </div>
+      {% endif %}
     </aside>
 
     <section class="content-shell">
