@@ -168,7 +168,11 @@
       {% for item in items %}
         <li>
           <div class="nav-node level-{{ level }}">
-            <span class="nav-chip">{{ item.label }}</span>
+            {% if item.href %}
+              <a class="nav-chip" href="{{ item.href }}" style="text-decoration: none;">{{ item.label }}</a>
+            {% else %}
+              <span class="nav-chip">{{ item.label }}</span>
+            {% endif %}
           </div>
           {% if item.children %}
             {{ render_menu(item.children, level + 1) }}

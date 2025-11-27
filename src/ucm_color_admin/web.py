@@ -21,9 +21,48 @@ templates = Jinja2Templates(directory=str(_templates_dir))
 _SESSION_COOKIE = "ucm_color_admin_user"
 _SESSION_AGE = 60 * 60 * 8  # 8 hours
 
+_CATALOG_SAMPLE = [
+    {
+        "sku": "SKU-001",
+        "title": "气泡水·青柠味 500ml",
+        "barcodes": ["6901234567890", "6920000111222"],
+        "category": "饮料/水饮",
+        "package": "箱装 12×500ml",
+        "unit": "箱",
+        "pricing": [
+            {"label": "销售价", "value": 5.9, "effective": "2024-01-01"},
+            {"label": "会员价", "value": 5.2, "effective": "2024-01-01"},
+            {"label": "生鲜临时调价", "value": 4.8, "effective": "2024-05-20"},
+        ],
+        "tax": "13%",
+        "brand": "UCM Fresh",
+        "origin": "中国", 
+        "shelf_life": "365 天",
+        "media": {"images": 3, "videos": 1},
+    },
+    {
+        "sku": "SKU-002",
+        "title": "有机燕麦片 1kg",
+        "barcodes": ["6939876500012"],
+        "category": "粮油/冲调",
+        "package": "袋装 1kg",
+        "unit": "袋",
+        "pricing": [
+            {"label": "销售价", "value": 29.9, "effective": "2024-02-10"},
+            {"label": "会员价", "value": 26.9, "effective": "2024-02-10"},
+        ],
+        "tax": "9%",
+        "brand": "Daily Farm",
+        "origin": "澳大利亚", 
+        "shelf_life": "540 天",
+        "media": {"images": 2, "videos": 0},
+    },
+]
+
 @dataclass(frozen=True)
 class MenuItem:
     label: str
+    href: str | None = None
     children: tuple["MenuItem", ...] = ()
 
 
@@ -51,7 +90,15 @@ _MODULES: list[Module] = [
             "批量导入/导出：CSV/Excel，导入前校验并支持差异预览",
             "商品列表含查询、导入、导出、编辑与新增商品按钮",
         ],
-        menu=(MenuItem(label="商品", children=(MenuItem(label="新增商品"),)),),
+        menu=(
+            MenuItem(
+                label="商品",
+                children=(
+                    MenuItem(label="新增商品"),
+                    MenuItem(label="商品资料", href="/web/catalog"),
+                ),
+            ),
+        ),
     ),
     Module(
         id="inventory",
@@ -195,6 +242,26 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
             "active_module": active_module,
             "current_user": user,
         },
+    )
+
+
+@router.get("/catalog", response_class=HTMLResponse)
+def catalog_page(request: Request, q: str | None = None, db: Session = Depends(get_db)):
+    user = _current_user(request, db)
+    if not user:
+        return RedirectResponse(url="/web/login?error=login_required", status_code=status.HTTP_303_SEE_OTHER)
+    query = (q or "").strip().lower()
+    products = [
+        product
+        for product in _CATALOG_SAMPLE
+        if not query
+        or query in product["sku"].lower()
+        or query in product["title"].lower()
+        or any(query in code.lower() for code in product["barcodes"])
+    ]
+    return templates.TemplateResponse(
+        "catalog.html",
+        {"request": request, "products": products, "q": q or "", "current_user": user},
     )
 
 

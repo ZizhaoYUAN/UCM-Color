@@ -59,6 +59,7 @@ browser without writing additional code:
 3. Open <http://127.0.0.1:8000/web/login> to access the login portal.
 4. 登录后自动跳转到 `/web/dashboard` 主控台：左侧树状菜单列出业务模块，右侧显示检查页头和检查列表，便于核对上线范围。
 5. 使用右上角的“用户表单”按钮进入 `/web/forms`，这里提供创建、更新、删除用户的 HTML 表单。
+6. 在主控台左侧展开“商品”→“商品资料”即可打开商品资料页，内含新增商品、批量导入/导出、查询与编辑入口。
 
 主控台涵盖的业务检查模块：
 
