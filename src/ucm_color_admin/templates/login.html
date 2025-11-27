@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}登录 · UCM Color 管理后台{% endblock %}
+{% block heading %}登录到 UCM Color 管理后台{% endblock %}
+
+{% block content %}
+  <div class="card" style="max-width: 420px; margin: 0 auto;">
+    {% if error %}
+      <div class="message error">{{ error }}</div>
+    {% elif message %}
+      <div class="message">{{ message }}</div>
+    {% endif %}
+    <form method="post" action="/web/login">
+      <label for="username">用户名</label>
+      <input id="username" name="username" placeholder="admin" required />
+      <label for="password">密码</label>
+      <input id="password" type="password" name="password" placeholder="••••••" required />
+      <button type="submit" style="width: 100%;">登录</button>
+    </form>
+    <p style="font-size: 0.9rem; color: #6b7280; margin-top: 1rem;">
+      使用 `ucm-color-admin create-admin` 创建第一个管理员后，即可在此登录并管理用户。
+    </p>
+  </div>
+{% endblock %}
