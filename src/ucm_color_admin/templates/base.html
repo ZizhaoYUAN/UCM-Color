@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}UCM Color 管理后台{% endblock %}</title>
+    <style>
+      :root {
+        font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+        color: #1f2937;
+        background: #f3f4f6;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: #f3f4f6;
+      }
+      a { color: inherit; }
+      .app-shell {
+        display: grid;
+        grid-template-columns: 248px 1fr;
+        min-height: 100vh;
+      }
+      .sidebar {
+        background: linear-gradient(180deg, #1f4b8f, #102a54);
+        color: #e5e7eb;
+        padding: 1rem 0.75rem 1.5rem;
+        box-shadow: 6px 0 24px rgba(16, 42, 84, 0.35);
+      }
+      .sidebar .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.85rem 1rem;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 0.75rem;
+      }
+      .sidebar .menu {
+        list-style: none;
+        padding: 0.5rem 0 0 0;
+        margin: 0;
+      }
+      .sidebar .menu li { margin-bottom: 0.35rem; }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.7rem 0.9rem;
+        border-radius: 0.65rem;
+        text-decoration: none;
+        color: inherit;
+        border: 1px solid transparent;
+        transition: all 0.18s ease;
+      }
+      .nav-link:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.12); }
+      .nav-link.active {
+        background: #0ea5e9;
+        color: #0b1f3a;
+        font-weight: 700;
+        box-shadow: 0 10px 28px rgba(14, 165, 233, 0.4);
+      }
+      .nav-icon {
+        width: 28px;
+        height: 28px;
+        display: grid;
+        place-items: center;
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.12);
+        font-weight: 900;
+      }
+      .workspace {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .topbar {
+        background: #fff;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 1.25rem;
+        gap: 1rem;
+      }
+      .crumbs {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b7280;
+        font-weight: 600;
+      }
+      .crumbs .dot { color: #9ca3af; }
+      .top-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+      .pill {
+        padding: 0.4rem 0.75rem;
+        border-radius: 999px;
+        background: #e0f2fe;
+        color: #075985;
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+      .search-box {
+        position: relative;
+        min-width: 240px;
+      }
+      .search-box input {
+        width: 100%;
+        padding: 0.6rem 0.75rem;
+        border-radius: 0.6rem;
+        border: 1px solid #d1d5db;
+        background: #f9fafb;
+      }
+      .page {
+        padding: 1.2rem 1.25rem 1.8rem;
+        display: grid;
+        gap: 1rem;
+      }
+      .page-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+      }
+      .section-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.85rem;
+        padding: 1rem 1.1rem;
+        box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+      }
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+      .muted { color: #6b7280; font-size: 0.95rem; }
+      .btn {
+        border: 1px solid #d1d5db;
+        background: #fff;
+        color: #0f172a;
+        padding: 0.55rem 0.8rem;
+        border-radius: 0.6rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        transition: all 0.16s ease;
+      }
+      .btn:hover { background: #f3f4f6; }
+      .btn.primary { background: #0ea5e9; border-color: #0ea5e9; color: #0b1f3a; }
+      .btn.ghost { background: transparent; }
+      .toolbar { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+      .grid { display: grid; gap: 0.75rem; }
+      .grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+      label { color: #374151; font-weight: 600; font-size: 0.95rem; }
+      input, select, textarea {
+        width: 100%;
+        padding: 0.55rem 0.7rem;
+        border-radius: 0.55rem;
+        border: 1px solid #d1d5db;
+        background: #f9fafb;
+        font-size: 0.95rem;
+      }
+      table { width: 100%; border-collapse: collapse; }
+      th, td {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 0.75rem 0.6rem;
+        text-align: left;
+        font-size: 0.95rem;
+      }
+      th { background: #f8fafc; color: #0f172a; font-weight: 800; }
+      tr:hover td { background: #f9fafb; }
+      .tag { display: inline-flex; padding: 0.2rem 0.45rem; border-radius: 0.4rem; background: #e0f2fe; color: #075985; font-weight: 700; }
+      .message { padding: 0.75rem 1rem; border-radius: 0.65rem; border: 1px solid #bae6fd; background: #e0f2fe; color: #0b1f3a; }
+      .message.error { border-color: #fecdd3; background: #fee2e2; color: #991b1b; }
+      @media (max-width: 1080px) { .app-shell { grid-template-columns: 1fr; } .sidebar { display: none; } .topbar { position: sticky; top: 0; z-index: 5; } }
+    </style>
+  </head>
+  <body>
+    {% macro render_sidebar(modules, active_module) %}
+      {% set current = active_module or nav_active or 'dashboard' %}
+      <div class="brand">UCM Color 后台</div>
+      <ul class="menu">
+        <li>
+          <a class="nav-link {% if current == 'dashboard' %}active{% endif %}" href="/web/dashboard">
+            <span class="nav-icon">🏠</span>
+            <span>主控台</span>
+          </a>
+        </li>
+        {% for module in modules or [] %}
+          <li>
+            <a class="nav-link {% if current == module.id %}active{% endif %}" href="{% if module.id == 'catalog' %}/web/catalog{% else %}/web/dashboard?module={{ module.id }}{% endif %}">
+              <span class="nav-icon">📁</span>
+              <span>{{ module.title }}</span>
+            </a>
+          </li>
+        {% endfor %}
+        <li>
+          <a class="nav-link {% if current == 'forms' %}active{% endif %}" href="/web/forms">
+            <span class="nav-icon">👤</span>
+            <span>用户与权限</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-link" href="/web/logout">
+            <span class="nav-icon">⏻</span>
+            <span>退出登录</span>
+          </a>
+        </li>
+      </ul>
+    {% endmacro %}
+
+    {% block layout %}
+      <div class="app-shell">
+        <aside class="sidebar">
+          {% block sidebar %}{{ render_sidebar(modules, active_module) }}{% endblock %}
+        </aside>
+        <div class="workspace">
+          <header class="topbar">
+            <div class="crumbs">
+              {% block breadcrumbs %}<span>后台</span> <span class="dot">›</span> <span>控制台</span>{% endblock %}
+            </div>
+            <div class="top-actions">
+              {% block top_actions %}{% endblock %}
+            </div>
+          </header>
+          <main class="page">
+            {% block page_intro %}{% endblock %}
+            {% block content %}{% endblock %}
+          </main>
+        </div>
+      </div>
+    {% endblock %}
+  </body>
+</html>
