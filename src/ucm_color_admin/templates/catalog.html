@@ -1,34 +1,42 @@
 {% extends "base.html" %}
 
 {% block title %}商品资料 · UCM Color 管理后台{% endblock %}
-{% block heading %}商品资料{% endblock %}
+{% block breadcrumbs %}<span>后台</span> <span class="dot">›</span> <span>商品</span> <span class="dot">›</span> <span>商品资料</span>{% endblock %}
+{% block top_actions %}
+  <span class="pill">当前用户：{{ current_user.username }}</span>
+  <div class="toolbar">
+    <a class="btn primary" href="#create">新增商品</a>
+    <a class="btn" href="#import">导入</a>
+    <a class="btn" href="#export">导出</a>
+  </div>
+{% endblock %}
 
-{% block header_actions %}
-  <div style="margin-top: 0.5rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-    <span style="font-weight: 600;">当前用户：{{ current_user.username }}</span>
-    <a class="button" href="/web/dashboard">返回主控台</a>
-    <a class="button" href="/web/logout">退出</a>
+{% block page_intro %}
+  <div class="section-card" style="display:flex; justify-content: space-between; align-items:center; gap:1rem;">
+    <div>
+      <h1 class="page-title" style="margin:0;">商品资料</h1>
+      <p class="muted" style="margin:0.35rem 0 0;">新增商品、批量导入/导出、查询与编辑商品资料，覆盖多条码、价格与富媒体。</p>
+    </div>
+    <div class="toolbar">
+      <a class="btn" href="/web/dashboard">返回主控台</a>
+      <a class="btn" href="/web/logout">退出</a>
+    </div>
   </div>
 {% endblock %}
 
 {% block content %}
-  <div class="card" style="margin-bottom: 1rem;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap;">
+  <div class="section-card" id="create">
+    <div class="section-header">
       <div>
-        <h2 style="margin: 0 0 0.35rem 0;">商品资料维护</h2>
-        <p style="margin: 0; color: #475569;">支持新增商品、批量导入/导出商品资料，带查询和编辑入口。</p>
+        <h2 style="margin:0;">新增商品</h2>
+        <p class="muted" style="margin:0.35rem 0 0;">支持 SKU、条码、规格、价格与富媒体录入。</p>
       </div>
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        <a class="button" href="#create">新增商品</a>
-        <a class="button" href="#import">导入商品资料</a>
-        <a class="button" href="#export">导出商品资料</a>
+      <div class="toolbar">
+        <button type="button" class="btn primary">保存</button>
+        <button type="button" class="btn">保存并继续</button>
       </div>
     </div>
-  </div>
-
-  <div class="card" id="create">
-    <h3 style="margin-top: 0;">新增商品</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+    <div class="grid cols-3">
       <div>
         <label>SKU</label>
         <input type="text" placeholder="例如 SKU-003" />
@@ -78,46 +86,61 @@
         <input type="file" />
       </div>
     </div>
-    <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
-      <button type="button">保存商品</button>
-      <button type="button" style="background: #0f172a;">保存并继续新增</button>
-    </div>
   </div>
 
-  <div class="card" id="import">
-    <h3 style="margin-top: 0;">批量导入/导出</h3>
-    <p style="margin-top: 0; color: #475569;">导入前会自动校验并提供差异预览，支持 CSV/Excel。</p>
-    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-      <button type="button">上传 CSV/Excel 导入</button>
-      <button type="button">下载导入模板</button>
-      <button type="button" id="export">导出当前查询结果</button>
-    </div>
-  </div>
-
-  <div class="card" id="search">
-    <form method="get" action="/web/catalog" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; align-items: end;">
+  <div class="section-card" id="import">
+    <div class="section-header">
       <div>
-        <label>SKU/名称/条码查询</label>
+        <h2 style="margin:0;">批量导入/导出</h2>
+        <p class="muted" style="margin:0.35rem 0 0;">导入前校验并预览差异，支持 CSV/Excel 模板。</p>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn">上传导入文件</button>
+        <button type="button" class="btn">下载模板</button>
+        <button type="button" class="btn">导出查询结果</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card" id="search">
+    <form method="get" action="/web/catalog" class="grid cols-3" style="align-items: end;">
+      <div>
+        <label>SKU / 名称 / 条码</label>
         <input type="text" name="q" value="{{ q }}" placeholder="输入 SKU、关键字或条码" />
       </div>
       <div>
-        <button type="submit">查询商品</button>
+        <label>分类</label>
+        <select>
+          <option>全部</option>
+          <option>饮料/水饮</option>
+          <option>粮油/冲调</option>
+        </select>
+      </div>
+      <div>
+        <button type="submit" class="btn primary" style="justify-content:center;">查询</button>
       </div>
     </form>
   </div>
 
-  <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
-      <h3 style="margin: 0;">商品列表</h3>
-      <a class="button" href="#create">新增商品</a>
+  <div class="section-card" id="export">
+    <div class="section-header">
+      <div>
+        <h2 style="margin:0;">商品列表</h2>
+        <p class="muted" style="margin:0.35rem 0 0;">查询、导入、导出、编辑与新增商品一站式操作。</p>
+      </div>
+      <div class="toolbar">
+        <a class="btn primary" href="#create">新增商品</a>
+        <a class="btn" href="#import">导入</a>
+        <a class="btn" href="#export">导出</a>
+      </div>
     </div>
-    <div style="overflow-x: auto; margin-top: 0.5rem;">
+    <div style="overflow-x:auto;">
       <table>
         <thead>
           <tr>
-            <th>SKU</th>
-            <th>条码</th>
-            <th>分类/包装/单位</th>
+            <th>SKU/条码</th>
+            <th>商品名称/分类</th>
+            <th>包装/单位</th>
             <th>价格（含生效时间）</th>
             <th>税率</th>
             <th>品牌/产地</th>
@@ -131,19 +154,20 @@
             {% for item in products %}
               <tr>
                 <td style="white-space: nowrap;">
-                  <div style="font-weight: 700;">{{ item.sku }}</div>
-                  <div style="color: #475569;">{{ item.title }}</div>
-                </td>
-                <td>
-                  <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                  <div style="font-weight: 800;">{{ item.sku }}</div>
+                  <div style="display:flex; gap:0.35rem; flex-wrap:wrap; margin-top:0.35rem;">
                     {% for code in item.barcodes %}
-                      <span style="background: #e0f2fe; color: #075985; padding: 0.25rem 0.45rem; border-radius: 0.4rem; font-weight: 700;">{{ code }}</span>
+                      <span class="tag">{{ code }}</span>
                     {% endfor %}
                   </div>
                 </td>
                 <td>
-                  <div>{{ item.category }}</div>
-                  <div style="color: #475569;">{{ item.package }} · {{ item.unit }}</div>
+                  <div style="font-weight:700;">{{ item.title }}</div>
+                  <div class="muted">{{ item.category }}</div>
+                </td>
+                <td>
+                  <div>{{ item.package }}</div>
+                  <div class="muted">{{ item.unit }}</div>
                 </td>
                 <td>
                   <ul style="margin: 0; padding-left: 1rem; color: #0f172a;">
@@ -155,7 +179,7 @@
                 <td>{{ item.tax }}</td>
                 <td>
                   <div>{{ item.brand }}</div>
-                  <div style="color: #475569;">{{ item.origin }}</div>
+                  <div class="muted">{{ item.origin }}</div>
                 </td>
                 <td>{{ item.shelf_life }}</td>
                 <td>
@@ -163,9 +187,9 @@
                   <div>视频 {{ item.media.videos }} 个</div>
                 </td>
                 <td>
-                  <div style="display: flex; flex-direction: column; gap: 0.35rem;">
-                    <button type="button" style="width: 100%;">编辑</button>
-                    <button type="button" style="width: 100%; background: #0f172a;">查看详情</button>
+                  <div class="grid" style="gap:0.35rem;">
+                    <button type="button" class="btn primary" style="justify-content:center;">编辑</button>
+                    <button type="button" class="btn" style="justify-content:center;">查看</button>
                   </div>
                 </td>
               </tr>

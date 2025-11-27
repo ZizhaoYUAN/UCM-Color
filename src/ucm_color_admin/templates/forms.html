@@ -1,20 +1,31 @@
 {% extends "base.html" %}
 
 {% block title %}表单中心 · UCM Color 管理后台{% endblock %}
-{% block heading %}表单中心{% endblock %}
-{% block header_actions %}
-  <div style="margin-top: 0.5rem;">
-    <span>当前用户：{{ current_user.username }}</span>
-    <a class="button" href="/web/logout" style="margin-left: 1rem;">退出</a>
+{% block breadcrumbs %}<span>后台</span> <span class="dot">›</span> <span>系统</span> <span class="dot">›</span> <span>用户与权限</span>{% endblock %}
+{% block top_actions %}
+  <span class="pill">当前用户：{{ current_user.username }}</span>
+  <a class="btn" href="/web/dashboard">返回主控台</a>
+  <a class="btn" href="/web/logout">退出</a>
+{% endblock %}
+
+{% block page_intro %}
+  <div class="section-card" style="display:flex; justify-content: space-between; align-items:center; gap:1rem;">
+    <div>
+      <h1 class="page-title" style="margin:0;">用户与权限</h1>
+      <p class="muted" style="margin:0.35rem 0 0;">管理后台用户、角色、启停状态与密码，支持快捷创建、更新与删除。</p>
+    </div>
+    {% if message %}<div class="message" style="margin:0;">{{ message }}</div>{% endif %}
   </div>
 {% endblock %}
 
 {% block content %}
-  {% if message %}
-    <div class="message">{{ message }}</div>
-  {% endif %}
-  <div class="card">
-    <h2>现有用户</h2>
+  <div class="section-card">
+    <div class="section-header">
+      <h2 style="margin:0;">现有用户</h2>
+      <div class="toolbar">
+        <a class="btn" href="#create">新增用户</a>
+      </div>
+    </div>
     <div style="overflow-x: auto;">
       <table>
         <thead>
@@ -24,7 +35,7 @@
             <th>姓名</th>
             <th>邮箱</th>
             <th>状态</th>
-            <th>超级管理员</th>
+            <th>角色</th>
           </tr>
         </thead>
         <tbody>
@@ -34,12 +45,12 @@
               <td>{{ user.username }}</td>
               <td>{{ user.full_name or "-" }}</td>
               <td>{{ user.email or "-" }}</td>
-              <td>{% if user.is_active %}启用{% else %}停用{% endif %}</td>
-              <td>{% if user.is_superuser %}是{% else %}否{% endif %}</td>
+              <td>{% if user.is_active %}<span class="tag" style="background:#dcfce7; color:#166534;">启用</span>{% else %}<span class="tag" style="background:#fee2e2; color:#b91c1c;">停用</span>{% endif %}</td>
+              <td>{% if user.is_superuser %}超级管理员{% else %}普通用户{% endif %}</td>
             </tr>
           {% else %}
             <tr>
-              <td colspan="6">暂无用户，请先使用下方表单创建。</td>
+              <td colspan="6" style="text-align: center; color: #94a3b8;">暂无用户，请先使用下方表单创建。</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -47,67 +58,97 @@
     </div>
   </div>
 
-  <div class="card">
-    <h2>创建用户</h2>
-    <form method="post" action="/web/forms/create">
-      <label for="create-username">用户名 *</label>
-      <input id="create-username" name="username" required />
-      <label for="create-password">密码 *</label>
-      <input id="create-password" name="password" type="password" required />
-      <label for="create-full-name">姓名</label>
-      <input id="create-full-name" name="full_name" />
-      <label for="create-email">邮箱</label>
-      <input id="create-email" name="email" type="email" />
-      <label for="create-active">状态</label>
-      <select id="create-active" name="is_active">
-        <option value="true" selected>启用</option>
-        <option value="false">停用</option>
-      </select>
-      <label for="create-super">角色</label>
-      <select id="create-super" name="is_superuser">
-        <option value="false" selected>普通用户</option>
-        <option value="true">超级管理员</option>
-      </select>
-      <button type="submit">创建</button>
+  <div class="section-card" id="create">
+    <div class="section-header">
+      <h2 style="margin:0;">创建用户</h2>
+      <button type="submit" form="create-form" class="btn primary">创建</button>
+    </div>
+    <form id="create-form" method="post" action="/web/forms/create" class="grid cols-3">
+      <div>
+        <label for="create-username">用户名 *</label>
+        <input id="create-username" name="username" required />
+      </div>
+      <div>
+        <label for="create-password">密码 *</label>
+        <input id="create-password" name="password" type="password" required />
+      </div>
+      <div>
+        <label for="create-full-name">姓名</label>
+        <input id="create-full-name" name="full_name" />
+      </div>
+      <div>
+        <label for="create-email">邮箱</label>
+        <input id="create-email" name="email" type="email" />
+      </div>
+      <div>
+        <label for="create-active">状态</label>
+        <select id="create-active" name="is_active">
+          <option value="true" selected>启用</option>
+          <option value="false">停用</option>
+        </select>
+      </div>
+      <div>
+        <label for="create-super">角色</label>
+        <select id="create-super" name="is_superuser">
+          <option value="false" selected>普通用户</option>
+          <option value="true">超级管理员</option>
+        </select>
+      </div>
     </form>
   </div>
 
-  <div class="card">
-    <h2>更新用户</h2>
-    <form method="post" action="/web/forms/update">
-      <label for="update-id">用户 ID *</label>
-      <input id="update-id" name="user_id" type="number" min="1" required />
-      <label for="update-full-name">姓名（留空则不变）</label>
-      <input id="update-full-name" name="full_name" />
-      <label for="update-email">邮箱（留空则不变）</label>
-      <input id="update-email" name="email" type="email" />
-      <label for="update-active">状态</label>
-      <select id="update-active" name="is_active">
-        <option value="keep" selected>保持不变</option>
-        <option value="true">启用</option>
-        <option value="false">停用</option>
-      </select>
-      <label for="update-super">角色</label>
-      <select id="update-super" name="is_superuser">
-        <option value="keep" selected>保持不变</option>
-        <option value="true">设为超级管理员</option>
-        <option value="false">设为普通用户</option>
-      </select>
-      <label for="update-password">密码（留空则不变）</label>
-      <input id="update-password" name="password" type="password" />
-      <button type="submit">更新</button>
+  <div class="section-card" id="update">
+    <div class="section-header">
+      <h2 style="margin:0;">更新用户</h2>
+      <button type="submit" form="update-form" class="btn primary">更新</button>
+    </div>
+    <form id="update-form" method="post" action="/web/forms/update" class="grid cols-3">
+      <div>
+        <label for="update-id">用户 ID *</label>
+        <input id="update-id" name="user_id" type="number" min="1" required />
+      </div>
+      <div>
+        <label for="update-full-name">姓名（留空则不变）</label>
+        <input id="update-full-name" name="full_name" />
+      </div>
+      <div>
+        <label for="update-email">邮箱（留空则不变）</label>
+        <input id="update-email" name="email" type="email" />
+      </div>
+      <div>
+        <label for="update-active">状态</label>
+        <select id="update-active" name="is_active">
+          <option value="keep" selected>保持不变</option>
+          <option value="true">启用</option>
+          <option value="false">停用</option>
+        </select>
+      </div>
+      <div>
+        <label for="update-super">角色</label>
+        <select id="update-super" name="is_superuser">
+          <option value="keep" selected>保持不变</option>
+          <option value="true">设为超级管理员</option>
+          <option value="false">设为普通用户</option>
+        </select>
+      </div>
+      <div>
+        <label for="update-password">密码（留空则不变）</label>
+        <input id="update-password" name="password" type="password" />
+      </div>
     </form>
   </div>
 
-  <div class="card">
-    <h2>删除用户</h2>
-    <form method="post" action="/web/forms/delete">
-      <label for="delete-id">用户 ID *</label>
-      <input id="delete-id" name="user_id" type="number" min="1" required />
-      <button type="submit" style="background: #dc2626;">删除</button>
+  <div class="section-card" id="delete">
+    <div class="section-header">
+      <h2 style="margin:0;">删除用户</h2>
+      <button type="submit" form="delete-form" class="btn" style="background:#fee2e2; border-color:#fecdd3; color:#b91c1c;">删除</button>
+    </div>
+    <form id="delete-form" method="post" action="/web/forms/delete" class="grid cols-3">
+      <div>
+        <label for="delete-id">用户 ID *</label>
+        <input id="delete-id" name="user_id" type="number" min="1" required />
+      </div>
     </form>
-    <p style="color: #9ca3af; font-size: 0.9rem;">
-      删除操作不可恢复，请谨慎执行。
-    </p>
+    <p class="muted" style="margin-top:0.5rem;">删除操作不可恢复，请谨慎执行。</p>
   </div>
 {% endblock %}

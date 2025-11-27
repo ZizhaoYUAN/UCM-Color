@@ -1,181 +1,39 @@
 {% extends "base.html" %}
 
 {% block title %}主控台 · UCM Color 管理后台{% endblock %}
-{% block heading %}主控台{% endblock %}
+{% block breadcrumbs %}<span>后台</span> <span class="dot">›</span> <span>主控台</span>{% endblock %}
+{% block top_actions %}
+  <span class="pill">当前用户：{{ current_user.username }}</span>
+  <div class="search-box"><input type="search" placeholder="快速搜索功能或模块" /></div>
+{% endblock %}
 
-{% block header_actions %}
-  <div style="margin-top: 0.5rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-    <span style="font-weight: 600;">当前用户：{{ current_user.username }}</span>
-    <a class="button" href="/web/forms">用户表单</a>
-    <a class="button" href="/web/logout">退出</a>
+{% block page_intro %}
+  <div class="section-card" style="display:flex; justify-content: space-between; align-items:center; gap:1rem;">
+    <div>
+      <h1 class="page-title" style="margin:0;">业务巡检仪表盘</h1>
+      <p class="muted" style="margin:0.35rem 0 0;">左侧切换业务域，右侧查看对应的检查项、导航入口与常用操作。</p>
+    </div>
+    <div class="toolbar">
+      <a class="btn" href="/web/forms">用户管理</a>
+      <a class="btn" href="/web/logout">退出登录</a>
+    </div>
   </div>
 {% endblock %}
 
 {% block content %}
-  <style>
-    .layout {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 1.25rem;
-    }
-    .sidebar {
-      background: #0f172a;
-      color: #cbd5e1;
-      border-radius: 0.75rem;
-      padding: 1rem;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
-      max-height: calc(100vh - 200px);
-      overflow-y: auto;
-    }
-    .sidebar h3 {
-      margin: 0 0 0.5rem 0;
-      color: #e2e8f0;
-      font-size: 1rem;
-    }
-    .tree {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .tree li { margin-bottom: 0.5rem; }
-    .tree button {
-      width: 100%;
-      text-align: left;
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: inherit;
-      padding: 0.65rem 0.75rem;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.2s ease, border-color 0.2s ease;
-    }
-    .tree button:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-    .tree button.active {
-      background: linear-gradient(120deg, #2563eb, #38bdf8);
-      color: #fff;
-      border-color: transparent;
-      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
-    }
-    .nav-tree { margin-top: 1rem; padding-left: 0.25rem; }
-    .nav-tree ul { list-style: none; padding-left: 0.75rem; margin: 0.35rem 0; }
-    .nav-node { color: #e2e8f0; font-weight: 600; margin: 0.25rem 0; }
-    .nav-node.level-2 { color: #cbd5e1; font-weight: 500; }
-    .nav-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.35rem 0.55rem;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 0.65rem;
-      font-size: 0.95rem;
-    }
-    .content-shell {
-      background: #fff;
-      border-radius: 0.75rem;
-      padding: 1.25rem 1.5rem 1.5rem 1.5rem;
-      box-shadow: 0 12px 34px rgba(15, 23, 42, 0.16);
-      min-height: 520px;
-    }
-    .content-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1rem;
-      border-bottom: 1px solid #e5e7eb;
-      padding-bottom: 1rem;
-      margin-bottom: 1.25rem;
-    }
-    .content-header h2 {
-      margin: 0;
-      color: #0f172a;
-    }
-    .content-header p {
-      margin: 0.25rem 0 0 0;
-      color: #475569;
-      line-height: 1.5;
-    }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      background: #e0f2fe;
-      color: #075985;
-      border-radius: 999px;
-      padding: 0.35rem 0.65rem;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    .checklist {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 0.85rem;
-      padding: 0;
-      margin: 0;
-      list-style: none;
-    }
-    .check-item {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 0.75rem;
-      padding: 0.85rem 1rem;
-      display: flex;
-      gap: 0.75rem;
-      align-items: flex-start;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    }
-    .check-icon {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-      background: #22c55e;
-      color: #fff;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
-      flex-shrink: 0;
-    }
-    .check-text {
-      color: #0f172a;
-      line-height: 1.45;
-      font-weight: 600;
-    }
-    .muted {
-      color: #94a3b8;
-      margin-top: 0.25rem;
-      font-size: 0.95rem;
-    }
-    .links-row {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-    @media (max-width: 960px) {
-      .layout { grid-template-columns: 1fr; }
-      .sidebar { max-height: none; }
-    }
-  </style>
-
   {% macro render_menu(items, level=1) %}
-    <ul>
+    <ul style="list-style:none; padding-left:0; margin:0.35rem 0 0;">
       {% for item in items %}
-        <li>
-          <div class="nav-node level-{{ level }}">
+        <li style="margin-bottom:0.25rem;">
+          <div style="display:flex; align-items:center; gap:0.35rem; color: {% if level==1 %}#0f172a{% else %}#374151{% endif %}; font-weight:{% if level==1 %}800{% else %}600{% endif %};">
             {% if item.href %}
-              <a class="nav-chip" href="{{ item.href }}" style="text-decoration: none;">{{ item.label }}</a>
+              <a href="{{ item.href }}" class="tag" style="text-decoration:none;">{{ item.label }}</a>
             {% else %}
-              <span class="nav-chip">{{ item.label }}</span>
+              <span class="tag" style="background:#f3f4f6; color:#0f172a;">{{ item.label }}</span>
             {% endif %}
           </div>
           {% if item.children %}
-            {{ render_menu(item.children, level + 1) }}
+            <div style="padding-left:0.75rem;">{{ render_menu(item.children, level + 1) }}</div>
           {% endif %}
         </li>
       {% endfor %}
@@ -184,66 +42,64 @@
 
   {% set active = (modules | selectattr('id', 'equalto', active_module) | list | first) %}
 
-  <div class="layout">
-    <aside class="sidebar">
-      <h3>功能模块</h3>
-      <ul class="tree">
-        {% for module in modules %}
-          <li>
-            <button data-module="{{ module.id }}" class="{% if module.id == active_module %}active{% endif %}">
+  <div class="section-card" style="padding:0;">
+    <div style="display:grid; grid-template-columns: 260px 1fr; gap:0; min-height:520px;">
+      <div style="border-right:1px solid #e5e7eb; padding:1rem 0.9rem; background:#f8fafc;">
+        <div style="font-weight:800; color:#0f172a; margin-bottom:0.6rem;">功能模块</div>
+        <div class="grid" style="gap:0.35rem;">
+          {% for module in modules %}
+            <button data-module="{{ module.id }}" class="btn {% if module.id == active_module %}primary{% endif %}" style="width:100%; justify-content:space-between;">
               <span>{{ module.title }}</span>
               <span aria-hidden="true">›</span>
             </button>
-          </li>
-        {% endfor %}
-      </ul>
-      {% if active and active.menu %}
-        <div class="nav-tree">
-          <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 0.35rem;">{{ active.title }}导航</div>
-          {{ render_menu(active.menu) }}
+          {% endfor %}
         </div>
-      {% else %}
-        <div style="margin-top: 1rem; font-size: 0.9rem; color: #cbd5e1;">
-          登录成功后可通过左侧树状菜单快速浏览各业务域检查项。
+        <div style="margin-top:0.75rem;">
+          {% if active and active.menu %}
+            <div class="muted" style="margin-bottom:0.35rem;">{{ active.title }}导航</div>
+            {{ render_menu(active.menu) }}
+          {% else %}
+            <div class="muted">选择左侧模块以查看导航和检查项。</div>
+          {% endif %}
         </div>
-      {% endif %}
-    </aside>
-
-    <section class="content-shell">
-      {% for module in modules %}
-        <div class="module-panel" data-module="{{ module.id }}" {% if module.id != active_module %}style="display:none;"{% endif %}>
-          <div class="content-header">
-            <div>
-              <div class="pill">{{ module.title }}</div>
-              <h2>{{ module.title }}检查页</h2>
-              <p>{{ module.summary }}</p>
+      </div>
+      <div style="padding:1rem 1.1rem;">
+        {% for module in modules %}
+          <div class="module-panel" data-module="{{ module.id }}" {% if module.id != active_module %}style="display:none;"{% endif %}>
+            <div class="section-header">
+              <div>
+                <div class="pill" style="background:#e5e7eb; color:#111827;">{{ module.title }}</div>
+                <h2 style="margin:0.35rem 0 0;">{{ module.title }}检查页</h2>
+                <p class="muted" style="margin:0.3rem 0 0;">{{ module.summary }}</p>
+              </div>
+              <div class="toolbar">
+                <a class="btn" href="/web/forms">用户管理表单</a>
+                <a class="btn" href="/web/logout">退出登录</a>
+              </div>
             </div>
-            <div class="links-row">
-              <a class="button" href="/web/forms">用户管理表单</a>
-              <a class="button" href="/web/logout">退出登录</a>
+            <div class="grid cols-3">
+              {% for item in module.checklist %}
+                <div class="section-card" style="border-color:#e2e8f0; box-shadow:none;">
+                  <div style="display:flex; gap:0.55rem; align-items:flex-start;">
+                    <div class="tag" style="background:#dcfce7; color:#166534;">✓</div>
+                    <div style="font-weight:700; line-height:1.45; color:#0f172a;">{{ item }}</div>
+                  </div>
+                </div>
+              {% endfor %}
             </div>
           </div>
-          <ul class="checklist">
-            {% for item in module.checklist %}
-              <li class="check-item">
-                <div class="check-icon">✓</div>
-                <div class="check-text">{{ item }}</div>
-              </li>
-            {% endfor %}
-          </ul>
-          <p class="muted">左侧切换模块可查看对应检查列表，确保后台功能覆盖需求。</p>
-        </div>
-      {% endfor %}
-    </section>
+        {% endfor %}
+      </div>
+    </div>
   </div>
 
   <script>
-    const buttons = Array.from(document.querySelectorAll('.tree button'));
+    const buttons = Array.from(document.querySelectorAll('.section-card button[data-module]'));
     const panels = Array.from(document.querySelectorAll('.module-panel'));
     buttons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const target = btn.getAttribute('data-module');
-        buttons.forEach((b) => b.classList.toggle('active', b === btn));
+        buttons.forEach((b) => b.classList.toggle('primary', b === btn));
         panels.forEach((panel) => {
           panel.style.display = panel.getAttribute('data-module') === target ? 'block' : 'none';
         });

@@ -261,7 +261,14 @@ def catalog_page(request: Request, q: str | None = None, db: Session = Depends(g
     ]
     return templates.TemplateResponse(
         "catalog.html",
-        {"request": request, "products": products, "q": q or "", "current_user": user},
+        {
+            "request": request,
+            "products": products,
+            "q": q or "",
+            "current_user": user,
+            "modules": _MODULES,
+            "active_module": "catalog",
+        },
     )
 
 
@@ -273,7 +280,14 @@ def forms_page(request: Request, message: str | None = None, db: Session = Depen
     users = crud.list_users(db, limit=200)
     return templates.TemplateResponse(
         "forms.html",
-        {"request": request, "users": users, "message": message, "current_user": user},
+        {
+            "request": request,
+            "users": users,
+            "message": message,
+            "current_user": user,
+            "modules": _MODULES,
+            "active_module": "forms",
+        },
     )
 
 
