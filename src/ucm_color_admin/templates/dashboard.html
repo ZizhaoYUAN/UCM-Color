@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}主控台 · UCM Color 管理后台{% endblock %}
+{% block breadcrumbs %}<span>后台</span> <span class="dot">›</span> <span>主控台</span>{% endblock %}
+{% block top_actions %}
+  <span class="pill">当前用户：{{ current_user.username }}</span>
+  <div class="search-box"><input type="search" placeholder="快速搜索功能或模块" /></div>
+{% endblock %}
+
+{% block page_intro %}
+  <div class="section-card" style="display:flex; justify-content: space-between; align-items:center; gap:1rem;">
+    <div>
+      <h1 class="page-title" style="margin:0;">业务巡检仪表盘</h1>
+      <p class="muted" style="margin:0.35rem 0 0;">左侧切换业务域，右侧查看对应的检查项、导航入口与常用操作。</p>
+    </div>
+    <div class="toolbar">
+      <a class="btn" href="/web/forms">用户管理</a>
+      <a class="btn" href="/web/logout">退出登录</a>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+  {% macro render_menu(items, level=1) %}
+    <ul style="list-style:none; padding-left:0; margin:0.35rem 0 0;">
+      {% for item in items %}
+        <li style="margin-bottom:0.25rem;">
+          <div style="display:flex; align-items:center; gap:0.35rem; color: {% if level==1 %}#0f172a{% else %}#374151{% endif %}; font-weight:{% if level==1 %}800{% else %}600{% endif %};">
+            {% if item.href %}
+              <a href="{{ item.href }}" class="tag" style="text-decoration:none;">{{ item.label }}</a>
+            {% else %}
+              <span class="tag" style="background:#f3f4f6; color:#0f172a;">{{ item.label }}</span>
+            {% endif %}
+          </div>
+          {% if item.children %}
+            <div style="padding-left:0.75rem;">{{ render_menu(item.children, level + 1) }}</div>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endmacro %}
+
+  {% set active = (modules | selectattr('id', 'equalto', active_module) | list | first) %}
+
+  <div class="section-card" style="padding:0;">
+    <div style="display:grid; grid-template-columns: 260px 1fr; gap:0; min-height:520px;">
+      <div style="border-right:1px solid #e5e7eb; padding:1rem 0.9rem; background:#f8fafc;">
+        <div style="font-weight:800; color:#0f172a; margin-bottom:0.6rem;">功能模块</div>
+        <div class="grid" style="gap:0.35rem;">
+          {% for module in modules %}
+            <button data-module="{{ module.id }}" class="btn {% if module.id == active_module %}primary{% endif %}" style="width:100%; justify-content:space-between;">
+              <span>{{ module.title }}</span>
+              <span aria-hidden="true">›</span>
+            </button>
+          {% endfor %}
+        </div>
+        <div style="margin-top:0.75rem;">
+          {% if active and active.menu %}
+            <div class="muted" style="margin-bottom:0.35rem;">{{ active.title }}导航</div>
+            {{ render_menu(active.menu) }}
+          {% else %}
+            <div class="muted">选择左侧模块以查看导航和检查项。</div>
+          {% endif %}
+        </div>
+      </div>
+      <div style="padding:1rem 1.1rem;">
+        {% for module in modules %}
+          <div class="module-panel" data-module="{{ module.id }}" {% if module.id != active_module %}style="display:none;"{% endif %}>
+            <div class="section-header">
+              <div>
+                <div class="pill" style="background:#e5e7eb; color:#111827;">{{ module.title }}</div>
+                <h2 style="margin:0.35rem 0 0;">{{ module.title }}检查页</h2>
+                <p class="muted" style="margin:0.3rem 0 0;">{{ module.summary }}</p>
+              </div>
+              <div class="toolbar">
+                <a class="btn" href="/web/forms">用户管理表单</a>
+                <a class="btn" href="/web/logout">退出登录</a>
+              </div>
+            </div>
+            <div class="grid cols-3">
+              {% for item in module.checklist %}
+                <div class="section-card" style="border-color:#e2e8f0; box-shadow:none;">
+                  <div style="display:flex; gap:0.55rem; align-items:flex-start;">
+                    <div class="tag" style="background:#dcfce7; color:#166534;">✓</div>
+                    <div style="font-weight:700; line-height:1.45; color:#0f172a;">{{ item }}</div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll('.section-card button[data-module]'));
+    const panels = Array.from(document.querySelectorAll('.module-panel'));
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-module');
+        buttons.forEach((b) => b.classList.toggle('primary', b === btn));
+        panels.forEach((panel) => {
+          panel.style.display = panel.getAttribute('data-module') === target ? 'block' : 'none';
+        });
+        const url = new URL(window.location.href);
+        url.searchParams.set('module', target);
+        window.history.replaceState({}, '', url);
+      });
+    });
+  </script>
+{% endblock %}

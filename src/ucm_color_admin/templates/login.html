@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}登录 · UCM Color 管理后台{% endblock %}
+
+{% block layout %}
+  <div style="min-height: 100vh; display: grid; place-items: center; background: linear-gradient(135deg, #0f172a, #1f4b8f); padding: 1.5rem;">
+    <div class="section-card" style="width: min(440px, 100%); border: none; box-shadow: 0 16px 42px rgba(0,0,0,0.22);">
+      <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom: 1rem;">
+        <div style="width:42px; height:42px; border-radius: 10px; background:#0ea5e9; display:grid; place-items:center; color:#0b1f3a; font-weight:900;">UC</div>
+        <div>
+          <div style="font-size:1.2rem; font-weight:800; color:#0f172a;">UCM Color 管理后台</div>
+          <div class="muted">请登录以继续</div>
+        </div>
+      </div>
+      {% if error %}
+        <div class="message error" style="margin-bottom: 1rem;">{{ error }}</div>
+      {% elif message %}
+        <div class="message" style="margin-bottom: 1rem;">{{ message }}</div>
+      {% endif %}
+      <form method="post" action="/web/login" class="grid" style="gap:0.65rem;">
+        <div>
+          <label for="username">用户名</label>
+          <input id="username" name="username" placeholder="admin" required />
+        </div>
+        <div>
+          <label for="password">密码</label>
+          <input id="password" type="password" name="password" placeholder="••••••" required />
+        </div>
+        <button type="submit" class="btn primary" style="justify-content:center;">登录</button>
+      </form>
+      <p class="muted" style="margin:0.85rem 0 0;">
+        使用 <code>ucm-color-admin create-admin</code> 创建管理员后即可登录后台。
+      </p>
+    </div>
+  </div>
+{% endblock %}
