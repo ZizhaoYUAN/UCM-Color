@@ -4,10 +4,12 @@
 {% block breadcrumbs %}<span>后台</span> <span class="dot">›</span> <span>商品</span> <span class="dot">›</span> <span>商品资料</span>{% endblock %}
 {% block top_actions %}
   <span class="pill">当前用户：{{ current_user.username }}</span>
-  <div class="toolbar">
+  <div class="toolbar" style="flex-wrap: nowrap; gap: 0.35rem;">
     <a class="btn primary" href="/web/catalog/create">新增商品</a>
-    <a class="btn" href="#import">导入</a>
-    <a class="btn" href="#export">导出</a>
+    <a class="btn" href="#list" style="border-bottom: 2px solid #0ea5e9; border-radius: 0.6rem 0.6rem 0 0;">商品列表</a>
+    <form method="get" action="/web/catalog" class="search-box" style="min-width: 320px;">
+      <input type="text" name="q" value="{{ q }}" placeholder="SKU / 名称 / 条码查询" />
+    </form>
   </div>
 {% endblock %}
 
@@ -15,7 +17,7 @@
   <div class="section-card" style="display:flex; justify-content: space-between; align-items:center; gap:1rem;">
     <div>
       <h1 class="page-title" style="margin:0;">商品资料</h1>
-      <p class="muted" style="margin:0.35rem 0 0;">新增商品、批量导入/导出、查询与编辑商品资料，覆盖多条码、价格与富媒体。</p>
+      <p class="muted" style="margin:0.35rem 0 0;">集中查看并维护商品资料，支持多条码、价格、品牌、产地与富媒体信息。</p>
     </div>
     <div class="toolbar">
       <a class="btn" href="/web/dashboard">返回主控台</a>
@@ -25,50 +27,14 @@
 {% endblock %}
 
 {% block content %}
-  <div class="section-card" id="import">
+  <div class="section-card" id="list">
     <div class="section-header">
       <div>
-        <h2 style="margin:0;">批量导入/导出</h2>
-        <p class="muted" style="margin:0.35rem 0 0;">导入前校验并预览差异，支持 CSV/Excel 模板。</p>
-      </div>
-      <div class="toolbar">
-        <button type="button" class="btn">上传导入文件</button>
-        <button type="button" class="btn">下载模板</button>
-        <button type="button" class="btn">导出查询结果</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-card" id="search">
-    <form method="get" action="/web/catalog" class="grid cols-3" style="align-items: end;">
-      <div>
-        <label>SKU / 名称 / 条码</label>
-        <input type="text" name="q" value="{{ q }}" placeholder="输入 SKU、关键字或条码" />
-      </div>
-      <div>
-        <label>分类</label>
-        <select>
-          <option>全部</option>
-          <option>饮料/水饮</option>
-          <option>粮油/冲调</option>
-        </select>
-      </div>
-      <div>
-        <button type="submit" class="btn primary" style="justify-content:center;">查询</button>
-      </div>
-    </form>
-  </div>
-
-  <div class="section-card" id="export">
-      <div class="section-header">
-      <div>
         <h2 style="margin:0;">商品列表</h2>
-        <p class="muted" style="margin:0.35rem 0 0;">查询、导入、导出、编辑与新增商品一站式操作。</p>
+        <p class="muted" style="margin:0.35rem 0 0;">使用查询栏快速定位商品，支持多条码、价格、品牌和富媒体信息的查看与编辑。</p>
       </div>
       <div class="toolbar">
         <a class="btn primary" href="/web/catalog/create">新增商品</a>
-        <a class="btn" href="#import">导入</a>
-        <a class="btn" href="#export">导出</a>
       </div>
     </div>
     <div style="overflow-x:auto;">
