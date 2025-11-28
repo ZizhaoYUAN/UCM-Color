@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}新增商品 · UCM Color 管理后台{% endblock %}
+{% block breadcrumbs %}<span>后台</span> <span class="dot">›</span> <span>商品</span> <span class="dot">›</span> <span>新增商品</span>{% endblock %}
+{% block top_actions %}
+  <span class="pill">当前用户：{{ current_user.username }}</span>
+  <div class="toolbar">
+    <a class="btn" href="/web/catalog">返回商品资料</a>
+    <a class="btn" href="/web/logout">退出</a>
+  </div>
+{% endblock %}
+
+{% block page_intro %}
+  <div class="section-card" style="display:flex; justify-content: space-between; align-items:center; gap:1rem;">
+    <div>
+      <h1 class="page-title" style="margin:0;">新增商品</h1>
+      <p class="muted" style="margin:0.35rem 0 0;">单独页面录入 SKU、条码、规格、价格、富媒体等信息，保持商品资料列表更简洁。</p>
+    </div>
+    <div class="toolbar">
+      <a class="btn" href="/web/dashboard">返回主控台</a>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="section-card">
+    <div class="section-header">
+      <div>
+        <h2 style="margin:0;">商品基础信息</h2>
+        <p class="muted" style="margin:0.35rem 0 0;">包含 SKU、条码、多级分类、包装与单位。</p>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn primary">保存</button>
+        <button type="button" class="btn">保存并继续</button>
+      </div>
+    </div>
+    <div class="grid cols-3">
+      <div>
+        <label>SKU</label>
+        <input type="text" placeholder="例如 SKU-003" />
+      </div>
+      <div>
+        <label>商品条码（多条码）</label>
+        <input type="text" placeholder="逗号分隔多个条码，如 6901...,6920..." />
+      </div>
+      <div>
+        <label>分类</label>
+        <input type="text" placeholder="如 饮料/水饮" />
+      </div>
+      <div>
+        <label>包装规格</label>
+        <input type="text" placeholder="如 箱装 12×500ml" />
+      </div>
+      <div>
+        <label>单位</label>
+        <input type="text" placeholder="箱/袋/瓶" />
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header">
+      <div>
+        <h2 style="margin:0;">价格与属性</h2>
+        <p class="muted" style="margin:0.35rem 0 0;">维护销售价、会员价、生鲜临时调价与生效时间，同时补充税率、品牌、产地、保质期。</p>
+      </div>
+    </div>
+    <div class="grid cols-3">
+      <div>
+        <label>价格（销售/会员/临时调价，含生效时间）</label>
+        <input type="text" placeholder="销售价 5.9@2024-01-01; 会员价 5.2@2024-01-01" />
+      </div>
+      <div>
+        <label>税率</label>
+        <input type="text" placeholder="如 13%" />
+      </div>
+      <div>
+        <label>品牌</label>
+        <input type="text" placeholder="品牌名称" />
+      </div>
+      <div>
+        <label>产地</label>
+        <input type="text" placeholder="中国/进口" />
+      </div>
+      <div>
+        <label>保质期</label>
+        <input type="text" placeholder="如 365 天" />
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header">
+      <div>
+        <h2 style="margin:0;">富媒体</h2>
+        <p class="muted" style="margin:0.35rem 0 0;">上传至对象存储的商品图片（最多 5 张）与商品视频。</p>
+      </div>
+    </div>
+    <div class="grid cols-3">
+      <div>
+        <label>商品图片（最多 5 张）</label>
+        <input type="file" multiple />
+      </div>
+      <div>
+        <label>商品视频</label>
+        <input type="file" />
+      </div>
+    </div>
+  </div>
+{% endblock %}

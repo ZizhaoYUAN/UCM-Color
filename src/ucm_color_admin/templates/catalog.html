@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}商品资料 · UCM Color 管理后台{% endblock %}
+{% block breadcrumbs %}<span>后台</span> <span class="dot">›</span> <span>商品</span> <span class="dot">›</span> <span>商品资料</span>{% endblock %}
+{% block top_actions %}
+  <span class="pill">当前用户：{{ current_user.username }}</span>
+  <div class="toolbar">
+    <a class="btn primary" href="/web/catalog/create">新增商品</a>
+    <a class="btn" href="#import">导入</a>
+    <a class="btn" href="#export">导出</a>
+  </div>
+{% endblock %}
+
+{% block page_intro %}
+  <div class="section-card" style="display:flex; justify-content: space-between; align-items:center; gap:1rem;">
+    <div>
+      <h1 class="page-title" style="margin:0;">商品资料</h1>
+      <p class="muted" style="margin:0.35rem 0 0;">新增商品、批量导入/导出、查询与编辑商品资料，覆盖多条码、价格与富媒体。</p>
+    </div>
+    <div class="toolbar">
+      <a class="btn" href="/web/dashboard">返回主控台</a>
+      <a class="btn" href="/web/logout">退出</a>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="section-card" id="import">
+    <div class="section-header">
+      <div>
+        <h2 style="margin:0;">批量导入/导出</h2>
+        <p class="muted" style="margin:0.35rem 0 0;">导入前校验并预览差异，支持 CSV/Excel 模板。</p>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn">上传导入文件</button>
+        <button type="button" class="btn">下载模板</button>
+        <button type="button" class="btn">导出查询结果</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card" id="search">
+    <form method="get" action="/web/catalog" class="grid cols-3" style="align-items: end;">
+      <div>
+        <label>SKU / 名称 / 条码</label>
+        <input type="text" name="q" value="{{ q }}" placeholder="输入 SKU、关键字或条码" />
+      </div>
+      <div>
+        <label>分类</label>
+        <select>
+          <option>全部</option>
+          <option>饮料/水饮</option>
+          <option>粮油/冲调</option>
+        </select>
+      </div>
+      <div>
+        <button type="submit" class="btn primary" style="justify-content:center;">查询</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="section-card" id="export">
+      <div class="section-header">
+      <div>
+        <h2 style="margin:0;">商品列表</h2>
+        <p class="muted" style="margin:0.35rem 0 0;">查询、导入、导出、编辑与新增商品一站式操作。</p>
+      </div>
+      <div class="toolbar">
+        <a class="btn primary" href="/web/catalog/create">新增商品</a>
+        <a class="btn" href="#import">导入</a>
+        <a class="btn" href="#export">导出</a>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>SKU/条码</th>
+            <th>商品名称/分类</th>
+            <th>包装/单位</th>
+            <th>价格（含生效时间）</th>
+            <th>税率</th>
+            <th>品牌/产地</th>
+            <th>保质期</th>
+            <th>图片/视频</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if products %}
+            {% for item in products %}
+              <tr>
+                <td style="white-space: nowrap;">
+                  <div style="font-weight: 800;">{{ item.sku }}</div>
+                  <div style="display:flex; gap:0.35rem; flex-wrap:wrap; margin-top:0.35rem;">
+                    {% for code in item.barcodes %}
+                      <span class="tag">{{ code }}</span>
+                    {% endfor %}
+                  </div>
+                </td>
+                <td>
+                  <div style="font-weight:700;">{{ item.title }}</div>
+                  <div class="muted">{{ item.category }}</div>
+                </td>
+                <td>
+                  <div>{{ item.package }}</div>
+                  <div class="muted">{{ item.unit }}</div>
+                </td>
+                <td>
+                  <ul style="margin: 0; padding-left: 1rem; color: #0f172a;">
+                    {% for price in item.pricing %}
+                      <li>{{ price.label }}：¥{{ '%.2f'|format(price.value) }}（{{ price.effective }} 生效）</li>
+                    {% endfor %}
+                  </ul>
+                </td>
+                <td>{{ item.tax }}</td>
+                <td>
+                  <div>{{ item.brand }}</div>
+                  <div class="muted">{{ item.origin }}</div>
+                </td>
+                <td>{{ item.shelf_life }}</td>
+                <td>
+                  <div>图片 {{ item.media.images }} 张</div>
+                  <div>视频 {{ item.media.videos }} 个</div>
+                </td>
+                <td>
+                  <div class="grid" style="gap:0.35rem;">
+                    <button type="button" class="btn primary" style="justify-content:center;">编辑</button>
+                    <button type="button" class="btn" style="justify-content:center;">查看</button>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="9" style="text-align: center; color: #94a3b8;">没有符合条件的商品资料</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
