@@ -5,7 +5,7 @@
 {% block top_actions %}
   <span class="pill">当前用户：{{ current_user.username }}</span>
   <div class="toolbar">
-    <a class="btn primary" href="#create">新增商品</a>
+    <a class="btn primary" href="/web/catalog/create">新增商品</a>
     <a class="btn" href="#import">导入</a>
     <a class="btn" href="#export">导出</a>
   </div>
@@ -25,69 +25,6 @@
 {% endblock %}
 
 {% block content %}
-  <div class="section-card" id="create">
-    <div class="section-header">
-      <div>
-        <h2 style="margin:0;">新增商品</h2>
-        <p class="muted" style="margin:0.35rem 0 0;">支持 SKU、条码、规格、价格与富媒体录入。</p>
-      </div>
-      <div class="toolbar">
-        <button type="button" class="btn primary">保存</button>
-        <button type="button" class="btn">保存并继续</button>
-      </div>
-    </div>
-    <div class="grid cols-3">
-      <div>
-        <label>SKU</label>
-        <input type="text" placeholder="例如 SKU-003" />
-      </div>
-      <div>
-        <label>商品条码（多条码）</label>
-        <input type="text" placeholder="逗号分隔多个条码，如 6901...,6920..." />
-      </div>
-      <div>
-        <label>分类</label>
-        <input type="text" placeholder="如 饮料/水饮" />
-      </div>
-      <div>
-        <label>包装规格</label>
-        <input type="text" placeholder="如 箱装 12×500ml" />
-      </div>
-      <div>
-        <label>单位</label>
-        <input type="text" placeholder="箱/袋/瓶" />
-      </div>
-      <div>
-        <label>价格（销售/会员/临时调价，含生效时间）</label>
-        <input type="text" placeholder="销售价 5.9@2024-01-01; 会员价 5.2@2024-01-01" />
-      </div>
-      <div>
-        <label>税率</label>
-        <input type="text" placeholder="如 13%" />
-      </div>
-      <div>
-        <label>品牌</label>
-        <input type="text" placeholder="品牌名称" />
-      </div>
-      <div>
-        <label>产地</label>
-        <input type="text" placeholder="中国/进口" />
-      </div>
-      <div>
-        <label>保质期</label>
-        <input type="text" placeholder="如 365 天" />
-      </div>
-      <div>
-        <label>商品图片（最多 5 张）</label>
-        <input type="file" multiple />
-      </div>
-      <div>
-        <label>商品视频</label>
-        <input type="file" />
-      </div>
-    </div>
-  </div>
-
   <div class="section-card" id="import">
     <div class="section-header">
       <div>
@@ -123,13 +60,13 @@
   </div>
 
   <div class="section-card" id="export">
-    <div class="section-header">
+      <div class="section-header">
       <div>
         <h2 style="margin:0;">商品列表</h2>
         <p class="muted" style="margin:0.35rem 0 0;">查询、导入、导出、编辑与新增商品一站式操作。</p>
       </div>
       <div class="toolbar">
-        <a class="btn primary" href="#create">新增商品</a>
+        <a class="btn primary" href="/web/catalog/create">新增商品</a>
         <a class="btn" href="#import">导入</a>
         <a class="btn" href="#export">导出</a>
       </div>

@@ -94,7 +94,7 @@ _MODULES: list[Module] = [
             MenuItem(
                 label="商品",
                 children=(
-                    MenuItem(label="新增商品"),
+                    MenuItem(label="新增商品", href="/web/catalog/create"),
                     MenuItem(label="商品资料", href="/web/catalog"),
                 ),
             ),
@@ -265,6 +265,22 @@ def catalog_page(request: Request, q: str | None = None, db: Session = Depends(g
             "request": request,
             "products": products,
             "q": q or "",
+            "current_user": user,
+            "modules": _MODULES,
+            "active_module": "catalog",
+        },
+    )
+
+
+@router.get("/catalog/create", response_class=HTMLResponse)
+def catalog_create_page(request: Request, db: Session = Depends(get_db)):
+    user = _current_user(request, db)
+    if not user:
+        return RedirectResponse(url="/web/login?error=login_required", status_code=status.HTTP_303_SEE_OTHER)
+    return templates.TemplateResponse(
+        "catalog_create.html",
+        {
+            "request": request,
             "current_user": user,
             "modules": _MODULES,
             "active_module": "catalog",
