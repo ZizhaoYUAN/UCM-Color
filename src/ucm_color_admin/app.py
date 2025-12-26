@@ -9,6 +9,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from . import __version__, crud, schemas
+from .auth import get_current_user
 from .config import get_settings
 from .database import init_database
 from .dependencies import get_db
@@ -27,32 +28,54 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     @app.get("/users", response_model=list[schemas.UserRead], tags=["users"])
-    def list_users(skip: int = 0, limit: int = 50, db: Session = Depends(get_db)):
+    def list_users(
+        skip: int = 0,
+        limit: int = 50,
+        db: Session = Depends(get_db),
+        _: schemas.UserRead = Depends(get_current_user),
+    ):
         return crud.list_users(db, skip=skip, limit=limit)
 
     @app.post("/users", response_model=schemas.UserRead, status_code=status.HTTP_201_CREATED, tags=["users"])
-    def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    def create_user(
+        user: schemas.UserCreate,
+        db: Session = Depends(get_db),
+        _: schemas.UserRead = Depends(get_current_user),
+    ):
         try:
             return crud.create_user(db, user)
         except crud.DuplicateUsernameError as exc:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
     @app.get("/users/{user_id}", response_model=schemas.UserRead, tags=["users"])
-    def get_user(user_id: int, db: Session = Depends(get_db)):
+    def get_user(
+        user_id: int,
+        db: Session = Depends(get_db),
+        _: schemas.UserRead = Depends(get_current_user),
+    ):
         user = crud.get_user(db, user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         return user
 
     @app.put("/users/{user_id}", response_model=schemas.UserRead, tags=["users"])
-    def update_user(user_id: int, payload: schemas.UserUpdate, db: Session = Depends(get_db)):
+    def update_user(
+        user_id: int,
+        payload: schemas.UserUpdate,
+        db: Session = Depends(get_db),
+        _: schemas.UserRead = Depends(get_current_user),
+    ):
         user = crud.get_user(db, user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
         return crud.update_user(db, user, payload)
 
     @app.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["users"])
-    def delete_user(user_id: int, db: Session = Depends(get_db)) -> None:
+    def delete_user(
+        user_id: int,
+        db: Session = Depends(get_db),
+        _: schemas.UserRead = Depends(get_current_user),
+    ) -> None:
         user = crud.get_user(db, user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

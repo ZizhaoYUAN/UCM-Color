@@ -12,14 +12,16 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from . import crud, schemas
+from . import crud, schemas, security
+from .auth import SESSION_COOKIE, _resolve_user
+from .config import get_settings
 from .dependencies import get_db
 
 router = APIRouter(prefix="/web", include_in_schema=False)
 _templates_dir = Path(__file__).with_name("templates")
 templates = Jinja2Templates(directory=str(_templates_dir))
-_SESSION_COOKIE = "ucm_color_admin_user"
 _SESSION_AGE = 60 * 60 * 8  # 8 hours
+_settings = get_settings()
 
 _CATALOG_SAMPLE = [
     {
@@ -160,13 +162,7 @@ _MODULES: list[Module] = [
 
 
 def _current_user(request: Request, db: Session) -> Optional[schemas.UserRead]:
-    username = request.cookies.get(_SESSION_COOKIE)
-    if not username:
-        return None
-    user = crud.get_user_by_username(db, username)
-    if not user:
-        return None
-    return schemas.UserRead.model_validate(user)
+    return _resolve_user(request, db)
 
 
 @router.get("/login", response_class=HTMLResponse)
@@ -201,8 +197,8 @@ def login_submit(
         )
     response = RedirectResponse(url="/web/dashboard", status_code=status.HTTP_303_SEE_OTHER)
     response.set_cookie(
-        key=_SESSION_COOKIE,
-        value=user.username,
+        key=SESSION_COOKIE,
+        value=security.sign_session(user.username, _settings.secret_key),
         httponly=True,
         samesite="lax",
         max_age=_SESSION_AGE,
@@ -213,7 +209,7 @@ def login_submit(
 @router.get("/logout")
 def logout() -> RedirectResponse:
     response = RedirectResponse(url="/web/login", status_code=status.HTTP_303_SEE_OTHER)
-    response.delete_cookie(_SESSION_COOKIE)
+    response.delete_cookie(SESSION_COOKIE)
     return response
 
 
