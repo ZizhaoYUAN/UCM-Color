@@ -74,7 +74,7 @@ def authenticate_user(db: Session, username: str, password: str) -> Optional[mod
     """Return the matching user when the credentials are valid."""
 
     user = get_user_by_username(db, username)
-    if not user:
+    if not user or not user.is_active:
         return None
     if not security.verify_password(password, user.hashed_password):
         return None

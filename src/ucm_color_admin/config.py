@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import secrets
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -35,6 +36,15 @@ def _default_installer_dir() -> Path:
     return _default_data_root() / "installers"
 
 
+def _default_secret_key() -> str:
+    """Return the secret key used for signing sessions."""
+
+    override = os.environ.get("UCM_COLOR_SECRET")
+    if override:
+        return override
+    return secrets.token_hex(32)
+
+
 @dataclass(slots=True)
 class Settings:
     """Runtime configuration loaded from environment variables."""
@@ -46,6 +56,7 @@ class Settings:
     log_level: str = field(default_factory=lambda: os.environ.get("UCM_COLOR_LOG_LEVEL", "info"))
     database_path: Path = field(default_factory=_default_database_path)
     installer_dir: Path = field(default_factory=_default_installer_dir)
+    secret_key: str = field(default_factory=_default_secret_key)
 
     def ensure_storage(self) -> None:
         """Ensure that the database directory exists."""
